@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { getCommitDiff, parseMachConfigVersionChanges, compareCommitsScoped } from "@/lib/github"
 import { generateText } from "ai"
-import { anthropic } from "@ai-sdk/anthropic"
+import { gateway } from "@ai-sdk/gateway"
 import type { ComponentVersionChange, MachConfigDeployment } from "@/lib/types"
 
 export async function GET(request: NextRequest) {
@@ -85,7 +85,7 @@ ${patchPreview}${file.patch && file.patch.length > 1000 ? "\n... (truncated)" : 
 
             try {
               const result = await generateText({
-                model: anthropic("claude-sonnet-4-20250514"),
+                model: gateway("anthropic:claude-sonnet-4-20250514"),
                 maxOutputTokens: 800,
                 prompt: `You are a senior software engineer reviewing code changes for the "${change.componentName}" component being deployed to ${change.environment}.
 

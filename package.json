@@ -16,6 +16,7 @@
     "@ai-sdk/google": "^2.0.45",
     "@ai-sdk/openai": "^2.0.80",
     "@ai-sdk/anthropic": "^2.0.54",
+    "@ai-sdk/gateway": "^2.0.18",
     "@hookform/resolvers": "^3.10.0",
     "@radix-ui/react-accordion": "1.2.2",
     "@radix-ui/react-alert-dialog": "1.1.4",
