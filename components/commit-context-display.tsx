@@ -2,6 +2,7 @@ import type { CommitContext } from "@/lib/types"
 import { ContextCard } from "./context-card"
 import { StatusBadge } from "./status-badge"
 import { TicketBadge } from "./ticket-badge"
+import { AuthorHover } from "./author-hover"
 import { GitCommit, GitPullRequest, Rocket, User, Clock, ExternalLink } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
 
@@ -25,7 +26,7 @@ export function CommitContextDisplay({ context }: CommitContextDisplayProps) {
             <div className="flex items-center gap-3 text-sm text-muted-foreground">
               <span className="flex items-center gap-1">
                 <User className="h-3.5 w-3.5" />
-                {commit.author}
+                <AuthorHover username={commit.author}>{commit.author}</AuthorHover>
               </span>
               <span className="flex items-center gap-1">
                 <Clock className="h-3.5 w-3.5" />
