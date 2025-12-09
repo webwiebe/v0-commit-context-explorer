@@ -5,7 +5,7 @@ import type React from "react"
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Search, Settings, Plus, Trash2, GitCompare, GitCommit, Rocket } from "lucide-react"
+import { Search, Settings, Plus, Trash2, GitCompare, GitCommit, Rocket, HeartPulse } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import {
   Dialog,
@@ -17,24 +17,26 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog"
 
-type SearchMode = "single" | "changelog" | "deployment"
+type SearchMode = "single" | "changelog" | "deployment" | "health"
 
 interface CommitInputProps {
   onSearch: (sha: string, repo: string) => void
   onChangelog: (from: string, to: string, repo: string) => void
   onDeployment: (sha: string, repo: string) => void
+  onReleaseHealth: (release: string) => void
   isLoading: boolean
 }
 
 const DEFAULT_REPO = "frasers-group/ec-fx-components"
 const STORAGE_KEY = "commit-explorer-repos"
 
-export function CommitInput({ onSearch, onChangelog, onDeployment, isLoading }: CommitInputProps) {
+export function CommitInput({ onSearch, onChangelog, onDeployment, onReleaseHealth, isLoading }: CommitInputProps) {
   const [mode, setMode] = useState<SearchMode>("changelog")
   const [sha, setSha] = useState("")
   const [fromSha, setFromSha] = useState("")
   const [toSha, setToSha] = useState("")
   const [deploymentSha, setDeploymentSha] = useState("")
+  const [healthRelease, setHealthRelease] = useState("")
   const [repo, setRepo] = useState(DEFAULT_REPO)
   const [repos, setRepos] = useState<string[]>([DEFAULT_REPO])
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -114,6 +116,8 @@ export function CommitInput({ onSearch, onChangelog, onDeployment, isLoading }: 
       onChangelog(fromSha.trim(), toSha.trim(), repo.trim())
     } else if (mode === "deployment" && deploymentSha.trim() && repo.trim()) {
       onDeployment(deploymentSha.trim(), repo.trim())
+    } else if (mode === "health" && healthRelease.trim()) {
+      onReleaseHealth(healthRelease.trim())
     }
   }
 
@@ -122,7 +126,9 @@ export function CommitInput({ onSearch, onChangelog, onDeployment, isLoading }: 
       ? sha.trim() && repo.trim()
       : mode === "changelog"
         ? fromSha.trim() && toSha.trim() && repo.trim()
-        : deploymentSha.trim() && repo.trim()
+        : mode === "deployment"
+          ? deploymentSha.trim() && repo.trim()
+          : healthRelease.trim()
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -168,6 +174,20 @@ export function CommitInput({ onSearch, onChangelog, onDeployment, isLoading }: 
         >
           <Rocket className="h-4 w-4 mr-2" />
           Deployment
+        </Button>
+        <Button
+          type="button"
+          variant={mode === "health" ? "default" : "outline"}
+          size="sm"
+          onClick={() => setMode("health")}
+          className={
+            mode === "health"
+              ? "bg-primary text-primary-foreground"
+              : "border-border hover:bg-secondary hover:border-cyan bg-transparent"
+          }
+        >
+          <HeartPulse className="h-4 w-4 mr-2" />
+          Release Health
         </Button>
       </div>
 
@@ -355,7 +375,7 @@ export function CommitInput({ onSearch, onChangelog, onDeployment, isLoading }: 
               {isLoading ? "Generating..." : "Generate"}
             </Button>
           </div>
-        ) : (
+        ) : mode === "deployment" ? (
           <div className="flex gap-3">
             <Input
               type="text"
@@ -371,6 +391,24 @@ export function CommitInput({ onSearch, onChangelog, onDeployment, isLoading }: 
             >
               <Rocket className="h-4 w-4" />
               {isLoading ? "Analyzing..." : "Analyze"}
+            </Button>
+          </div>
+        ) : (
+          <div className="flex gap-3">
+            <Input
+              type="text"
+              placeholder="Release version or commit SHA..."
+              value={healthRelease}
+              onChange={(e) => setHealthRelease(e.target.value)}
+              className="flex-1 bg-secondary border-border font-mono text-sm placeholder:text-muted-foreground focus:border-cyan focus:ring-cyan"
+            />
+            <Button
+              type="submit"
+              disabled={isLoading || !isValid}
+              className="bg-primary text-primary-foreground hover:bg-primary/90 gap-2"
+            >
+              <HeartPulse className="h-4 w-4" />
+              {isLoading ? "Checking..." : "Check Health"}
             </Button>
           </div>
         )}

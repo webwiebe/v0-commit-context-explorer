@@ -6,7 +6,8 @@ import { CommitInput } from "@/components/commit-input"
 import { CommitContextDisplay } from "@/components/commit-context-display"
 import { ChangelogDisplay } from "@/components/changelog-display"
 import { DeploymentDisplay } from "@/components/deployment-display"
-import type { CommitContext, ChangelogContext, MachConfigDeployment } from "@/lib/types"
+import { ReleaseHealthDisplay } from "@/components/release-health-display"
+import type { CommitContext, ChangelogContext, MachConfigDeployment, ReleaseHealthMetrics } from "@/lib/types"
 import { Terminal, AlertCircle } from "lucide-react"
 
 const commitFetcher = async (url: string): Promise<CommitContext> => {
@@ -36,10 +37,20 @@ const deploymentFetcher = async (url: string): Promise<MachConfigDeployment> => 
   return res.json()
 }
 
+const healthFetcher = async (url: string): Promise<ReleaseHealthMetrics> => {
+  const res = await fetch(url)
+  if (!res.ok) {
+    const error = await res.json()
+    throw new Error(error.error || "Failed to fetch release health")
+  }
+  return res.json()
+}
+
 export default function HomePage() {
   const [commitParams, setCommitParams] = useState<{ sha: string; repo: string } | null>(null)
   const [changelogParams, setChangelogParams] = useState<{ from: string; to: string; repo: string } | null>(null)
   const [deploymentParams, setDeploymentParams] = useState<{ sha: string; repo: string } | null>(null)
+  const [healthParams, setHealthParams] = useState<{ release: string } | null>(null)
 
   const {
     data: commitData,
@@ -70,27 +81,46 @@ export default function HomePage() {
     deploymentFetcher,
   )
 
+  const {
+    data: healthData,
+    error: healthError,
+    isLoading: healthLoading,
+  } = useSWR<ReleaseHealthMetrics>(
+    healthParams ? `/api/sentry/release-health?release=${encodeURIComponent(healthParams.release)}` : null,
+    healthFetcher,
+  )
+
   const handleSearch = (sha: string, repo: string) => {
     setChangelogParams(null)
     setDeploymentParams(null)
+    setHealthParams(null)
     setCommitParams({ sha, repo })
   }
 
   const handleChangelog = (from: string, to: string, repo: string) => {
     setCommitParams(null)
     setDeploymentParams(null)
+    setHealthParams(null)
     setChangelogParams({ from, to, repo })
   }
 
   const handleDeployment = (sha: string, repo: string) => {
     setCommitParams(null)
     setChangelogParams(null)
+    setHealthParams(null)
     setDeploymentParams({ sha, repo })
   }
 
-  const isLoading = commitLoading || changelogLoading || deploymentLoading
-  const error = commitError || changelogError || deploymentError
-  const hasData = commitData || changelogData || deploymentData
+  const handleReleaseHealth = (release: string) => {
+    setCommitParams(null)
+    setChangelogParams(null)
+    setDeploymentParams(null)
+    setHealthParams({ release })
+  }
+
+  const isLoading = commitLoading || changelogLoading || deploymentLoading || healthLoading
+  const error = commitError || changelogError || deploymentError || healthError
+  const hasData = commitData || changelogData || deploymentData || healthData
 
   return (
     <main className="min-h-screen bg-background">
@@ -106,12 +136,13 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Search Input - pass onDeployment */}
+        {/* Search Input */}
         <div className="mb-8">
           <CommitInput
             onSearch={handleSearch}
             onChangelog={handleChangelog}
             onDeployment={handleDeployment}
+            onReleaseHealth={handleReleaseHealth}
             isLoading={isLoading}
           />
         </div>
@@ -125,11 +156,13 @@ export default function HomePage() {
             <div className="flex items-center gap-3 text-muted-foreground">
               <div className="h-5 w-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
               <span>
-                {deploymentLoading
-                  ? "Analyzing deployment..."
-                  : changelogLoading
-                    ? "Generating changelog..."
-                    : "Fetching commit context..."}
+                {healthLoading
+                  ? "Fetching release health..."
+                  : deploymentLoading
+                    ? "Analyzing deployment..."
+                    : changelogLoading
+                      ? "Generating changelog..."
+                      : "Fetching commit context..."}
               </span>
             </div>
           </div>
@@ -147,13 +180,14 @@ export default function HomePage() {
         {commitData && !isLoading && <CommitContextDisplay context={commitData} />}
         {changelogData && !isLoading && <ChangelogDisplay changelog={changelogData} />}
         {deploymentData && !isLoading && <DeploymentDisplay deployment={deploymentData} />}
+        {healthData && !isLoading && <ReleaseHealthDisplay health={healthData} />}
 
         {/* Empty State */}
-        {!commitParams && !changelogParams && !deploymentParams && !isLoading && (
+        {!commitParams && !changelogParams && !deploymentParams && !healthParams && !isLoading && (
           <div className="text-center py-12 text-muted-foreground">
             <p className="text-sm">
-              Enter a commit SHA to explore its context, provide a range to generate a changelog, or analyze a
-              mach-config deployment.
+              Enter a commit SHA to explore its context, provide a range to generate a changelog, analyze a
+              mach-config deployment, or check release health.
             </p>
             <p className="text-xs mt-2">Example: abc1234 → def5678</p>
           </div>
