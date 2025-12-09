@@ -101,3 +101,59 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Konami Code Effect Animations */
+@keyframes matrix-fall {
+  0% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh);
+    opacity: 0;
+  }
+}
+
+@keyframes konami-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    text-shadow:
+      0 0 10px var(--primary),
+      0 0 20px var(--primary),
+      0 0 40px var(--primary);
+  }
+  50% {
+    opacity: 0.8;
+    text-shadow:
+      0 0 20px var(--primary),
+      0 0 40px var(--primary),
+      0 0 60px var(--primary);
+  }
+}
+
+.matrix-column {
+  animation: matrix-fall linear infinite;
+  will-change: transform;
+}
+
+.konami-message {
+  animation: konami-pulse 1s ease-in-out infinite;
+}
+
+.crt-scanlines {
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.15),
+    rgba(0, 0, 0, 0.15) 1px,
+    transparent 1px,
+    transparent 2px
+  );
+  pointer-events: none;
+}

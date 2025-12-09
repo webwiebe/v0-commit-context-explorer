@@ -6,6 +6,8 @@ import { CommitInput } from "@/components/commit-input"
 import { CommitContextDisplay } from "@/components/commit-context-display"
 import { ChangelogDisplay } from "@/components/changelog-display"
 import { DeploymentDisplay } from "@/components/deployment-display"
+import { KonamiEffect } from "@/components/konami-effect"
+import { useKonamiCode } from "@/hooks/use-konami-code"
 import type { CommitContext, ChangelogContext, MachConfigDeployment } from "@/lib/types"
 import { Terminal, AlertCircle } from "lucide-react"
 
@@ -40,6 +42,9 @@ export default function HomePage() {
   const [commitParams, setCommitParams] = useState<{ sha: string; repo: string } | null>(null)
   const [changelogParams, setChangelogParams] = useState<{ from: string; to: string; repo: string } | null>(null)
   const [deploymentParams, setDeploymentParams] = useState<{ sha: string; repo: string } | null>(null)
+
+  // Easter egg: Konami code detection
+  const { isActivated: konamiActivated, deactivate: deactivateKonami } = useKonamiCode()
 
   const {
     data: commitData,
@@ -94,6 +99,9 @@ export default function HomePage() {
 
   return (
     <main className="min-h-screen bg-background">
+      {/* Easter egg: Konami code effect */}
+      <KonamiEffect isActive={konamiActivated} onComplete={deactivateKonami} />
+
       <div className="max-w-2xl mx-auto px-4 py-12">
         {/* Header */}
         <div className="flex items-center gap-3 mb-8">
