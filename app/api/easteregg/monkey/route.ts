@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { experimental_generateImage as generateImage } from "ai"
-import { openai } from "@ai-sdk/openai"
+import { createOpenAI } from "@ai-sdk/openai"
 
 const MONKEY_SCENARIOS = [
   "a cartoon monkey engineer holding a wrench upside down with a confused expression, trying to fix a computer",
@@ -13,12 +13,23 @@ const MONKEY_SCENARIOS = [
   "a cartoon monkey wearing safety goggles on top of its head while soldering incorrectly",
 ]
 
+// Create OpenAI provider - uses OPENAI_API_KEY env var
+const openai = createOpenAI({
+  // If no API key, the request will fail gracefully
+  apiKey: process.env.OPENAI_API_KEY || "",
+})
+
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams
   const username = searchParams.get("username")
 
   if (!username) {
     return NextResponse.json({ error: "Missing required parameter: username" }, { status: 400 })
+  }
+
+  // Check if API key is configured
+  if (!process.env.OPENAI_API_KEY) {
+    return NextResponse.json({ error: "OpenAI API key not configured" }, { status: 503 })
   }
 
   // Use username as seed for consistent scenario per user
