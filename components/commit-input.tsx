@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, forwardRef, useImperativeHandle, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -29,17 +29,25 @@ interface CommitInputProps {
   initialRepo?: string
 }
 
+export interface CommitInputRef {
+  focus: () => void
+  blur: () => void
+}
+
 const DEFAULT_REPO = "frasers-group/ec-fx-components"
 const STORAGE_KEY = "commit-explorer-repos"
 
-export function CommitInput({
-  isLoading,
-  initialMode = "changelog",
-  initialSha = "",
-  initialFromSha = "",
-  initialToSha = "",
-  initialRepo,
-}: CommitInputProps) {
+export const CommitInput = forwardRef<CommitInputRef, CommitInputProps>(function CommitInput(
+  {
+    isLoading,
+    initialMode = "changelog",
+    initialSha = "",
+    initialFromSha = "",
+    initialToSha = "",
+    initialRepo,
+  },
+  ref
+) {
   const router = useRouter()
   const [mode, setMode] = useState<SearchMode>(initialMode)
   const [sha, setSha] = useState(initialSha)
@@ -52,6 +60,29 @@ export function CommitInput({
   const [newRepo, setNewRepo] = useState("")
   const [editingIndex, setEditingIndex] = useState<number | null>(null)
   const [editValue, setEditValue] = useState("")
+
+  // Refs for input elements (focus/blur from keyboard shortcuts)
+  const shaInputRef = useRef<HTMLInputElement>(null)
+  const fromShaInputRef = useRef<HTMLInputElement>(null)
+  const deploymentShaInputRef = useRef<HTMLInputElement>(null)
+
+  // Expose focus and blur methods to parent
+  useImperativeHandle(ref, () => ({
+    focus: () => {
+      if (mode === "single") {
+        shaInputRef.current?.focus()
+      } else if (mode === "changelog") {
+        fromShaInputRef.current?.focus()
+      } else {
+        deploymentShaInputRef.current?.focus()
+      }
+    },
+    blur: () => {
+      shaInputRef.current?.blur()
+      fromShaInputRef.current?.blur()
+      deploymentShaInputRef.current?.blur()
+    },
+  }))
 
   // Load repos from localStorage on mount
   useEffect(() => {
@@ -336,6 +367,7 @@ export function CommitInput({
         {mode === "single" ? (
           <div className="flex gap-3">
             <Input
+              ref={shaInputRef}
               type="text"
               placeholder="Commit SHA..."
               value={sha}
@@ -354,6 +386,7 @@ export function CommitInput({
         ) : mode === "changelog" ? (
           <div className="flex gap-3 items-center">
             <Input
+              ref={fromShaInputRef}
               type="text"
               placeholder="From SHA (older)..."
               value={fromSha}
@@ -380,6 +413,7 @@ export function CommitInput({
         ) : (
           <div className="flex gap-3">
             <Input
+              ref={deploymentShaInputRef}
               type="text"
               placeholder="Mach-config commit SHA..."
               value={deploymentSha}
@@ -399,4 +433,4 @@ export function CommitInput({
       </div>
     </form>
   )
-}
+})
