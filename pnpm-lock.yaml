@@ -121,6 +121,9 @@ dependencies:
   next-themes:
     specifier: ^0.4.6
     version: 0.4.6(react-dom@19.2.0)(react@19.2.0)
+  nuqs:
+    specifier: ^2.8.4
+    version: 2.8.4(next@16.0.7)(react@19.2.0)
   react:
     specifier: 19.2.0
     version: 19.2.0
@@ -165,9 +168,9 @@ devDependencies:
   '@eslint/eslintrc':
     specifier: ^3.3.3
     version: 3.3.3
-  '@eslint/js':
-    specifier: ^9.39.1
-    version: 9.39.1
+  '@next/eslint-plugin-next':
+    specifier: ^16.0.8
+    version: 16.0.8
   '@tailwindcss/postcss':
     specifier: ^4.1.9
     version: 4.1.9
@@ -180,18 +183,15 @@ devDependencies:
   '@types/react-dom':
     specifier: ^19
     version: 19.0.0
+  '@typescript-eslint/parser':
+    specifier: ^8.49.0
+    version: 8.49.0(eslint@9.39.1)(typescript@5.0.2)
   eslint:
     specifier: ^9.39.1
     version: 9.39.1
   eslint-config-next:
     specifier: ^16.0.8
     version: 16.0.8(@typescript-eslint/parser@8.49.0)(eslint@9.39.1)(typescript@5.0.2)
-  eslint-plugin-react:
-    specifier: ^7.37.5
-    version: 7.37.5(eslint@9.39.1)
-  eslint-plugin-react-hooks:
-    specifier: ^7.0.1
-    version: 7.0.1(eslint@9.39.1)
   postcss:
     specifier: ^8.5
     version: 8.5.0
@@ -5067,6 +5067,32 @@ packages:
   /normalize-range@0.1.2:
     resolution: {integrity: sha512-bdok/XvKII3nUpklnV6P2hxtMNrCboOjAcyBuQnWEhO665FwrSNRxU+AqpsyvO6LgGYPspN+lu5CLtw4jPRKNA==}
     engines: {node: '>=0.10.0'}
+    dev: false
+
+  /nuqs@2.8.4(next@16.0.7)(react@19.2.0):
+    resolution: {integrity: sha512-jyMlfTRGYTyWqKonwTys0B+EITpL/ueWa/6mJ3lTHG1MCCevYUSMW2TOuS+NCYBpNtNyD7h1cw2HOlCEfuLghQ==}
+    peerDependencies:
+      '@remix-run/react': '>=2'
+      '@tanstack/react-router': ^1
+      next: '>=14.2.0'
+      react: '>=18.2.0 || ^19.0.0-0'
+      react-router: ^5 || ^6 || ^7
+      react-router-dom: ^5 || ^6 || ^7
+    peerDependenciesMeta:
+      '@remix-run/react':
+        optional: true
+      '@tanstack/react-router':
+        optional: true
+      next:
+        optional: true
+      react-router:
+        optional: true
+      react-router-dom:
+        optional: true
+    dependencies:
+      '@standard-schema/spec': 1.0.0
+      next: 16.0.7(@babel/core@7.28.5)(react-dom@19.2.0)(react@19.2.0)
+      react: 19.2.0
     dev: false
 
   /object-assign@4.1.1:

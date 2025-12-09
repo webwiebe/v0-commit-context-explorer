@@ -1,42 +1,32 @@
-import js from "@eslint/js"
+import nextPlugin from "@next/eslint-plugin-next"
 import tseslint from "typescript-eslint"
-import react from "eslint-plugin-react"
-import reactHooks from "eslint-plugin-react-hooks"
+import tsParser from "@typescript-eslint/parser"
 
-export default tseslint.config(
-  js.configs.recommended,
+export default [
+  {
+    ignores: [".next/**", "node_modules/**"],
+  },
   ...tseslint.configs.recommended,
   {
     files: ["**/*.{ts,tsx}"],
-    plugins: {
-      react,
-      "react-hooks": reactHooks,
-    },
     languageOptions: {
+      parser: tsParser,
       parserOptions: {
+        ecmaVersion: "latest",
+        sourceType: "module",
         ecmaFeatures: {
           jsx: true,
         },
       },
     },
-    rules: {
-      "react/react-in-jsx-scope": "off",
-      "react-hooks/rules-of-hooks": "error",
-      "react-hooks/exhaustive-deps": "warn",
-      "@typescript-eslint/no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
-      "@typescript-eslint/no-explicit-any": "warn",
+    plugins: {
+      "@next/next": nextPlugin,
     },
-    settings: {
-      react: {
-        version: "detect",
-      },
+    rules: {
+      ...nextPlugin.configs.recommended.rules,
+      ...nextPlugin.configs["core-web-vitals"].rules,
+      "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_", varsIgnorePattern: "^_" }],
+      "@typescript-eslint/no-explicit-any": "off",
     },
   },
-  {
-    ignores: [
-      "node_modules/**",
-      ".next/**",
-      "out/**",
-    ],
-  }
-)
+]
