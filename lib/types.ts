@@ -102,3 +102,40 @@ export interface MachConfigDeployment {
   date: string
   components: ComponentVersionChange[]
 }
+
+// Settings & Integration types
+export type IntegrationStatus = "connected" | "not_configured" | "error"
+
+export interface IntegrationConfig {
+  id: string
+  name: string
+  description: string
+  status: IntegrationStatus
+  configuredVia: "env" | "local" | null
+  details?: string
+  error?: string
+}
+
+export interface ConnectionTestResult {
+  success: boolean
+  message: string
+  details?: Record<string, unknown>
+}
+
+export interface IntegrationCredentials {
+  github?: {
+    token: string
+  }
+  sentry?: {
+    authToken: string
+    org: string
+  }
+  jira?: {
+    apiToken: string
+    baseUrl: string
+    email: string
+  }
+  honeycomb?: {
+    apiKey: string
+  }
+}

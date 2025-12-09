@@ -2,7 +2,7 @@
 
 import type React from "react"
 import Link from "next/link"
-import { Terminal } from "lucide-react"
+import { Terminal, Settings } from "lucide-react"
 import { CommitInput } from "@/components/commit-input"
 import { KonamiEffect } from "@/components/konami-effect"
 import { useKonamiCode } from "@/hooks/use-konami-code"
@@ -35,15 +35,22 @@ export function PageLayout({
       <KonamiEffect isActive={konamiActivated} onComplete={deactivateKonami} />
       <div className="max-w-2xl mx-auto px-4 py-12">
         {/* Header */}
-        <div className="flex items-center gap-3 mb-8">
+        <div className="flex items-center justify-between mb-8">
           <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-            <div className="p-2 rounded-lg bg-primary/10 border border-primary/30">
-              <Terminal className="h-6 w-6 text-primary" />
+            <div className="glitch-container p-2 rounded-lg bg-primary/10 border border-primary/30">
+              <Terminal className="glitch-icon h-6 w-6 text-primary" />
             </div>
             <div>
               <h1 className="text-2xl font-bold text-foreground">Commit Explorer</h1>
               <p className="text-sm text-muted-foreground">Explore commit context and generate changelogs</p>
             </div>
+          </Link>
+          <Link
+            href="/settings"
+            className="p-2 rounded-lg border border-border bg-secondary hover:border-cyan hover:bg-secondary/80 transition-colors"
+            title="Settings"
+          >
+            <Settings className="h-5 w-5 text-muted-foreground" />
           </Link>
         </div>
 

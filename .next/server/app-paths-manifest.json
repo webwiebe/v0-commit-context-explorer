@@ -1,0 +1,11 @@
+{
+  "/_global-error/page": "app/_global-error/page.js",
+  "/_not-found/page": "app/_not-found/page.js",
+  "/api/changelog/route": "app/api/changelog/route.js",
+  "/api/commit/[sha]/route": "app/api/commit/[sha]/route.js",
+  "/api/mach-config/route": "app/api/mach-config/route.js",
+  "/api/settings/route": "app/api/settings/route.js",
+  "/api/settings/test/route": "app/api/settings/test/route.js",
+  "/page": "app/page.js",
+  "/settings/page": "app/settings/page.js"
+}
