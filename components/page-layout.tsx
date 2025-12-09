@@ -4,6 +4,8 @@ import type React from "react"
 import Link from "next/link"
 import { Terminal, Settings } from "lucide-react"
 import { CommitInput } from "@/components/commit-input"
+import { KonamiEffect } from "@/components/konami-effect"
+import { useKonamiCode } from "@/hooks/use-konami-code"
 
 interface PageLayoutProps {
   children: React.ReactNode
@@ -24,8 +26,13 @@ export function PageLayout({
   initialToSha,
   initialRepo,
 }: PageLayoutProps) {
+  // Easter egg: Konami code detection
+  const { isActivated: konamiActivated, deactivate: deactivateKonami } = useKonamiCode()
+
   return (
     <main className="min-h-screen bg-background">
+      {/* Easter egg: Konami code effect */}
+      <KonamiEffect isActive={konamiActivated} onComplete={deactivateKonami} />
       <div className="max-w-2xl mx-auto px-4 py-12">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
