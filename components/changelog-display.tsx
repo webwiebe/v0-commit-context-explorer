@@ -1,6 +1,7 @@
 import type { ChangelogContext } from "@/lib/types"
 import { ContextCard } from "./context-card"
 import { TicketBadge } from "./ticket-badge"
+import { AuthorHover } from "./author-hover"
 import { GitCompare, GitCommit, User, Clock, ExternalLink, Tag, Users, Sparkles, FileCode } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
 import ReactMarkdown from "react-markdown"
@@ -99,12 +100,11 @@ export function ChangelogDisplay({ changelog }: ChangelogDisplayProps) {
               </div>
               <div className="flex flex-wrap gap-2">
                 {authors.map((author) => (
-                  <span
-                    key={author}
-                    className="text-xs px-2 py-1 rounded-md bg-secondary border border-border font-mono"
-                  >
-                    {author}
-                  </span>
+                  <AuthorHover key={author} username={author}>
+                    <span className="text-xs px-2 py-1 rounded-md bg-secondary border border-border font-mono">
+                      {author}
+                    </span>
+                  </AuthorHover>
                 ))}
               </div>
             </div>
@@ -177,7 +177,7 @@ export function ChangelogDisplay({ changelog }: ChangelogDisplayProps) {
                 <div className="flex items-center gap-3 text-xs text-muted-foreground">
                   <span className="flex items-center gap-1">
                     <User className="h-3 w-3" />
-                    {commit.author}
+                    <AuthorHover username={commit.author}>{commit.author}</AuthorHover>
                   </span>
                   <span className="flex items-center gap-1">
                     <Clock className="h-3 w-3" />

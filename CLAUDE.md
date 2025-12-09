@@ -29,7 +29,8 @@ app/
 └── api/
     ├── commit/[sha]/route.ts   # Single commit context
     ├── changelog/route.ts      # Compare commits, AI summaries
-    └── mach-config/route.ts    # Deployment analysis
+    ├── mach-config/route.ts    # Deployment analysis
+    └── easteregg/monkey/route.ts # Monkey engineer image generation
 
 components/
 ├── commit-input.tsx            # Input form with repo selector
@@ -38,6 +39,7 @@ components/
 ├── deployment-display.tsx      # Mach-config deployment view
 ├── status-badge.tsx            # Deployment status indicators
 ├── ticket-badge.tsx            # Jira ticket references (PX-XXX)
+├── author-hover.tsx            # Easter egg: monkey image on author hover
 └── ui/                         # shadcn/ui primitives
 
 lib/
@@ -52,7 +54,7 @@ lib/
 GITHUB_TOKEN=        # Optional but recommended for higher rate limits
 ```
 
-The Vercel AI integration uses the Vercel AI Gateway (configured automatically on Vercel).
+The Vercel AI integration uses the Vercel AI Gateway (configured automatically on Vercel) for both text generation (Claude) and image generation (Gemini Flash).
 
 ## API Routes
 
@@ -70,6 +72,11 @@ Compares two commits and generates AI-powered changelog summary.
 Analyzes deployment commits to `mach-config/` directory, parses version changes, and generates risk assessments.
 
 **Query params**: `sha`, `repo`
+
+### GET `/api/easteregg/monkey`
+Generates AI-powered humorous monkey engineer images using Google Gemini Flash via Vercel AI Gateway.
+
+**Query params**: `username`
 
 ## GitHub Integration
 
