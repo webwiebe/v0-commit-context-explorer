@@ -30,8 +30,8 @@ export function PageLayout({
         {/* Header */}
         <div className="flex items-center gap-3 mb-8">
           <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-            <div className="p-2 rounded-lg bg-primary/10 border border-primary/30">
-              <Terminal className="h-6 w-6 text-primary" />
+            <div className="glitch-container p-2 rounded-lg bg-primary/10 border border-primary/30">
+              <Terminal className="glitch-icon h-6 w-6 text-primary" />
             </div>
             <div>
               <h1 className="text-2xl font-bold text-foreground">Commit Explorer</h1>
