@@ -3,6 +3,7 @@
 import type { MachConfigDeployment } from "@/lib/types"
 import { ContextCard } from "./context-card"
 import { TicketBadge } from "./ticket-badge"
+import { AuthorHover } from "./author-hover"
 import {
   Rocket,
   GitCommit,
@@ -86,7 +87,7 @@ export function DeploymentDisplay({ deployment }: DeploymentDisplayProps) {
                 <span className="font-mono text-primary">{commitSha}</span>
                 <span className="flex items-center gap-1">
                   <User className="h-3 w-3" />
-                  {author}
+                  <AuthorHover username={author}>{author}</AuthorHover>
                 </span>
                 <span className="flex items-center gap-1">
                   <Clock className="h-3 w-3" />
@@ -305,7 +306,7 @@ export function DeploymentDisplay({ deployment }: DeploymentDisplayProps) {
                               </a>
                             </div>
                             <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
-                              <span>{commit.author}</span>
+                              <AuthorHover username={commit.author}>{commit.author}</AuthorHover>
                               <span>·</span>
                               <span>{formatDistanceToNow(new Date(commit.date), { addSuffix: true })}</span>
                             </div>

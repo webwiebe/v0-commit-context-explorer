@@ -55,7 +55,7 @@ export function CommitContextDisplay({ context }: CommitContextDisplayProps) {
             <p className="font-mono text-primary">#{pr.number}</p>
             <p className="text-foreground font-medium">"{pr.title}"</p>
             <div className="flex items-center gap-3 text-sm text-muted-foreground">
-              <span>Merged by {pr.mergedBy}</span>
+              <span>Merged by <AuthorHover username={pr.mergedBy}>{pr.mergedBy}</AuthorHover></span>
               <a
                 href={pr.url}
                 target="_blank"
