@@ -54,7 +54,7 @@ lib/
 GITHUB_TOKEN=        # Optional but recommended for higher rate limits
 ```
 
-The Vercel AI integration uses the Vercel AI Gateway (configured automatically on Vercel) for both text generation (Claude) and image generation (DALL-E 3).
+The Vercel AI integration uses the Vercel AI Gateway (configured automatically on Vercel) for both text generation (Claude) and image generation (Gemini Flash).
 
 ## API Routes
 
@@ -74,7 +74,7 @@ Analyzes deployment commits to `mach-config/` directory, parses version changes,
 **Query params**: `sha`, `repo`
 
 ### GET `/api/easteregg/monkey`
-Generates AI-powered humorous monkey engineer images using OpenAI DALL-E 3 via Vercel AI Gateway.
+Generates AI-powered humorous monkey engineer images using Google Gemini Flash via Vercel AI Gateway.
 
 **Query params**: `username`
 

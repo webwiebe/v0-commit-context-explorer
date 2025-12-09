@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { experimental_generateImage as generateImage } from "ai"
-import { createOpenAI } from "@ai-sdk/openai"
+import { createGoogleGenerativeAI } from "@ai-sdk/google"
 
 const MONKEY_SCENARIOS = [
   "a cartoon monkey engineer holding a wrench upside down with a confused expression, trying to fix a computer",
@@ -13,9 +13,9 @@ const MONKEY_SCENARIOS = [
   "a cartoon monkey wearing safety goggles on top of its head while soldering incorrectly",
 ]
 
-// Create OpenAI provider using Vercel AI Gateway
+// Create Google provider using Vercel AI Gateway
 // When deployed on Vercel, this uses the gateway's credentials automatically
-const openai = createOpenAI({})
+const google = createGoogleGenerativeAI({})
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams
@@ -31,9 +31,8 @@ export async function GET(request: NextRequest) {
 
   try {
     const { image } = await generateImage({
-      model: openai.image("dall-e-3"),
+      model: google.image("gemini-2.0-flash-preview-image-generation"),
       prompt: `${scenario}. Digital art style, humorous, cute, vibrant colors, simple background. The scene should be funny and lighthearted.`,
-      size: "1024x1024",
     })
 
     return NextResponse.json({
