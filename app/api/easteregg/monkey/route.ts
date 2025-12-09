@@ -13,11 +13,9 @@ const MONKEY_SCENARIOS = [
   "a cartoon monkey wearing safety goggles on top of its head while soldering incorrectly",
 ]
 
-// Create OpenAI provider - uses OPENAI_API_KEY env var
-const openai = createOpenAI({
-  // If no API key, the request will fail gracefully
-  apiKey: process.env.OPENAI_API_KEY || "",
-})
+// Create OpenAI provider using Vercel AI Gateway
+// When deployed on Vercel, this uses the gateway's credentials automatically
+const openai = createOpenAI({})
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams
@@ -25,11 +23,6 @@ export async function GET(request: NextRequest) {
 
   if (!username) {
     return NextResponse.json({ error: "Missing required parameter: username" }, { status: 400 })
-  }
-
-  // Check if API key is configured
-  if (!process.env.OPENAI_API_KEY) {
-    return NextResponse.json({ error: "OpenAI API key not configured" }, { status: 503 })
   }
 
   // Use username as seed for consistent scenario per user
@@ -41,7 +34,6 @@ export async function GET(request: NextRequest) {
       model: openai.image("dall-e-3"),
       prompt: `${scenario}. Digital art style, humorous, cute, vibrant colors, simple background. The scene should be funny and lighthearted.`,
       size: "1024x1024",
-      n: 1,
     })
 
     return NextResponse.json({

@@ -52,10 +52,9 @@ lib/
 
 ```bash
 GITHUB_TOKEN=        # Optional but recommended for higher rate limits
-OPENAI_API_KEY=      # Required for monkey easter egg image generation
 ```
 
-The Vercel AI integration uses the Vercel AI Gateway (configured automatically on Vercel).
+The Vercel AI integration uses the Vercel AI Gateway (configured automatically on Vercel) for both text generation (Claude) and image generation (DALL-E 3).
 
 ## API Routes
 
@@ -75,10 +74,9 @@ Analyzes deployment commits to `mach-config/` directory, parses version changes,
 **Query params**: `sha`, `repo`
 
 ### GET `/api/easteregg/monkey`
-Generates AI-powered humorous monkey engineer images using OpenAI DALL-E 3.
+Generates AI-powered humorous monkey engineer images using OpenAI DALL-E 3 via Vercel AI Gateway.
 
 **Query params**: `username`
-**Requires**: `OPENAI_API_KEY` environment variable
 
 ## GitHub Integration
 
