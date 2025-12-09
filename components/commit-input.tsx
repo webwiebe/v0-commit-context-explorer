@@ -3,6 +3,7 @@
 import type React from "react"
 
 import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Search, Settings, Plus, Trash2, GitCompare, GitCommit, Rocket, HeartPulse } from "lucide-react"
@@ -20,24 +21,35 @@ import {
 type SearchMode = "single" | "changelog" | "deployment" | "health"
 
 interface CommitInputProps {
-  onSearch: (sha: string, repo: string) => void
-  onChangelog: (from: string, to: string, repo: string) => void
-  onDeployment: (sha: string, repo: string) => void
-  onReleaseHealth: (release: string) => void
   isLoading: boolean
+  initialMode?: SearchMode
+  initialSha?: string
+  initialFromSha?: string
+  initialToSha?: string
+  initialRepo?: string
+  initialRelease?: string
 }
 
 const DEFAULT_REPO = "frasers-group/ec-fx-components"
 const STORAGE_KEY = "commit-explorer-repos"
 
-export function CommitInput({ onSearch, onChangelog, onDeployment, onReleaseHealth, isLoading }: CommitInputProps) {
-  const [mode, setMode] = useState<SearchMode>("changelog")
-  const [sha, setSha] = useState("")
-  const [fromSha, setFromSha] = useState("")
-  const [toSha, setToSha] = useState("")
-  const [deploymentSha, setDeploymentSha] = useState("")
-  const [healthRelease, setHealthRelease] = useState("")
-  const [repo, setRepo] = useState(DEFAULT_REPO)
+export function CommitInput({
+  isLoading,
+  initialMode = "changelog",
+  initialSha = "",
+  initialFromSha = "",
+  initialToSha = "",
+  initialRepo,
+  initialRelease = "",
+}: CommitInputProps) {
+  const router = useRouter()
+  const [mode, setMode] = useState<SearchMode>(initialMode)
+  const [sha, setSha] = useState(initialSha)
+  const [fromSha, setFromSha] = useState(initialFromSha)
+  const [toSha, setToSha] = useState(initialToSha)
+  const [deploymentSha, setDeploymentSha] = useState(initialMode === "deployment" ? initialSha : "")
+  const [healthRelease, setHealthRelease] = useState(initialRelease)
+  const [repo, setRepo] = useState(initialRepo || DEFAULT_REPO)
   const [repos, setRepos] = useState<string[]>([DEFAULT_REPO])
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [newRepo, setNewRepo] = useState("")
@@ -54,8 +66,18 @@ export function CommitInput({ onSearch, onChangelog, onDeployment, onReleaseHeal
         parsed.unshift(DEFAULT_REPO)
       }
       setRepos(parsed)
+      // Set initial repo if provided and ensure it's in the list
+      if (initialRepo && !parsed.includes(initialRepo)) {
+        const newRepos = [...parsed, initialRepo]
+        setRepos(newRepos)
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(newRepos))
+      }
+    } else if (initialRepo && initialRepo !== DEFAULT_REPO) {
+      const newRepos = [DEFAULT_REPO, initialRepo]
+      setRepos(newRepos)
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(newRepos))
     }
-  }, [])
+  }, [initialRepo])
 
   // Save repos to localStorage
   const saveRepos = (newRepos: string[]) => {
@@ -110,14 +132,15 @@ export function CommitInput({ onSearch, onChangelog, onDeployment, onReleaseHeal
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+    const repoParam = encodeURIComponent(repo.trim())
     if (mode === "single" && sha.trim() && repo.trim()) {
-      onSearch(sha.trim(), repo.trim())
+      router.push(`/commit/${sha.trim()}?repo=${repoParam}`)
     } else if (mode === "changelog" && fromSha.trim() && toSha.trim() && repo.trim()) {
-      onChangelog(fromSha.trim(), toSha.trim(), repo.trim())
+      router.push(`/changelog/${fromSha.trim()}..${toSha.trim()}?repo=${repoParam}`)
     } else if (mode === "deployment" && deploymentSha.trim() && repo.trim()) {
-      onDeployment(deploymentSha.trim(), repo.trim())
+      router.push(`/deployment/${deploymentSha.trim()}?repo=${repoParam}`)
     } else if (mode === "health" && healthRelease.trim()) {
-      onReleaseHealth(healthRelease.trim())
+      router.push(`/health/${encodeURIComponent(healthRelease.trim())}`)
     }
   }
 
