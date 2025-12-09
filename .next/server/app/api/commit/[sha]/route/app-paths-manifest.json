@@ -1,0 +1,3 @@
+{
+  "/api/commit/[sha]/route": "app/api/commit/[sha]/route.js"
+}
