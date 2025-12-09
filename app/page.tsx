@@ -7,7 +7,8 @@ import { CommitContextDisplay } from "@/components/commit-context-display"
 import { ChangelogDisplay } from "@/components/changelog-display"
 import { DeploymentDisplay } from "@/components/deployment-display"
 import type { CommitContext, ChangelogContext, MachConfigDeployment } from "@/lib/types"
-import { Terminal, AlertCircle } from "lucide-react"
+import Link from "next/link"
+import { Terminal, AlertCircle, Settings } from "lucide-react"
 
 const commitFetcher = async (url: string): Promise<CommitContext> => {
   const res = await fetch(url)
@@ -96,14 +97,23 @@ export default function HomePage() {
     <main className="min-h-screen bg-background">
       <div className="max-w-2xl mx-auto px-4 py-12">
         {/* Header */}
-        <div className="flex items-center gap-3 mb-8">
-          <div className="p-2 rounded-lg bg-primary/10 border border-primary/30">
-            <Terminal className="h-6 w-6 text-primary" />
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-primary/10 border border-primary/30">
+              <Terminal className="h-6 w-6 text-primary" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-foreground">Commit Explorer</h1>
+              <p className="text-sm text-muted-foreground">Explore commit context and generate changelogs</p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">Commit Explorer</h1>
-            <p className="text-sm text-muted-foreground">Explore commit context and generate changelogs</p>
-          </div>
+          <Link
+            href="/settings"
+            className="p-2 rounded-lg border border-border bg-secondary hover:border-cyan hover:bg-secondary/80 transition-colors"
+            title="Settings"
+          >
+            <Settings className="h-5 w-5 text-muted-foreground" />
+          </Link>
         </div>
 
         {/* Search Input - pass onDeployment */}
