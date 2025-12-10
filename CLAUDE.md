@@ -4,12 +4,12 @@ A Next.js application that provides comprehensive context about Git commits, dep
 
 ## Quick Start
 
-```bash
+\`\`\`bash
 pnpm install      # Install dependencies
 pnpm dev          # Start development server (http://localhost:3000)
 pnpm build        # Production build
 pnpm lint         # Run ESLint
-```
+\`\`\`
 
 ## Tech Stack
 
@@ -21,7 +21,7 @@ pnpm lint         # Run ESLint
 
 ## Project Structure
 
-```
+\`\`\`
 app/
 ├── page.tsx                    # Main client component
 ├── layout.tsx                  # Root layout with Analytics
@@ -46,13 +46,13 @@ lib/
 ├── github.ts                   # GitHub API integration
 ├── types.ts                    # TypeScript interfaces
 └── utils.ts                    # Utility functions (cn)
-```
+\`\`\`
 
 ## Environment Variables
 
-```bash
+\`\`\`bash
 GITHUB_TOKEN=        # Optional but recommended for higher rate limits
-```
+\`\`\`
 
 The Vercel AI integration uses the Vercel AI Gateway (configured automatically on Vercel) for both text generation (Claude) and image generation (Gemini Flash).
 
@@ -94,7 +94,7 @@ All GitHub API calls are in [lib/github.ts](lib/github.ts). Key functions:
 
 ## Key Types
 
-```typescript
+\`\`\`typescript
 interface CommitContext {
   commit: { sha, message, author, date, ticketRefs[] }
   pr: { number, title, mergedBy, url } | null
@@ -110,7 +110,7 @@ interface MachConfigDeployment {
   commitSha, commitMessage, author, date
   components: ComponentDeployment[]
 }
-```
+\`\`\`
 
 ## Development Notes
 

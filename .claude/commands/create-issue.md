@@ -21,9 +21,9 @@ Analyze the request: "{{args}}"
 
 ### Check for Existing Issues
 
-```bash
+\`\`\`bash
 gh issue list --search "{{args}}" --limit 10
-```
+\`\`\`
 
 - Review existing issues to avoid duplicates
 - Check if this is related to or depends on other issues
@@ -42,9 +42,9 @@ gh issue list --search "{{args}}" --limit 10
    - Check for existing similar implementations
 
 3. **Review recent activity**:
-   ```bash
+   \`\`\`bash
    git log --oneline --grep="{{args}}" -10
-   ```
+   \`\`\`
 
    - See if similar work was done recently
    - Check for related PRs or commits
@@ -94,7 +94,7 @@ gh issue list --search "{{args}}" --limit 10
 
 **Body Structure**:
 
-```markdown
+\`\`\`markdown
 ## Description
 
 [Clear explanation of what needs to be done and why]
@@ -116,11 +116,11 @@ gh issue list --search "{{args}}" --limit 10
 ## Related
 
 [Links to related issues, PRs, documentation]
-```
+\`\`\`
 
 **For Bugs, also include**:
 
-```markdown
+\`\`\`markdown
 ## Current Behavior
 
 [What happens now]
@@ -139,7 +139,7 @@ gh issue list --search "{{args}}" --limit 10
 
 - Site: [main/places/admin/etc.]
 - User role: [if relevant]
-```
+\`\`\`
 
 ### Suggest Labels
 
@@ -166,7 +166,7 @@ Present the drafted issue content and suggested labels to the user:
 
 Once approved:
 
-```bash
+\`\`\`bash
 gh issue create \
   --title "[TYPE] Title here" \
   --body "$(cat <<'EOF'
@@ -174,7 +174,7 @@ gh issue create \
 EOF
 )" \
   --label "label1,label2,label3"
-```
+\`\`\`
 
 ### Confirm Creation
 

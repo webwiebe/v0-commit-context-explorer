@@ -10,7 +10,7 @@ Extend the Commit Context Explorer to show **Sentry error context** for the comm
 
 ### Additional Section in UI
 
-```
+\`\`\`
 ┌─────────────────────────────────────────────────┐
 │  ...existing commit/PR/deployment sections...   │
 │                                                 │
@@ -41,7 +41,7 @@ Extend the Commit Context Explorer to show **Sentry error context** for the comm
 │  └─────────────────────────────────────────┘   │
 │                                                 │
 └─────────────────────────────────────────────────┘
-```
+\`\`\`
 
 ### What to Fetch (Sentry MCP)
 
@@ -61,7 +61,7 @@ Given commit context:
 
 ### Extended Data Model
 
-```typescript
+\`\`\`typescript
 interface CommitContext {
   // ...existing fields...
   errorImpact: ErrorImpact | null
@@ -89,13 +89,13 @@ interface FileErrorLink {
   filePath: string
   errors: SentryIssue[]
 }
-```
+\`\`\`
 
 ### MCP Integration
 
 Add `/lib/mcp/sentry.ts`:
 
-```typescript
+\`\`\`typescript
 // Sentry MCP tools to use:
 // - search_errors: Find errors in specific files
 // - get_issues: Get issues by project/time range
@@ -107,7 +107,7 @@ export async function getErrorContext(project: string, files: string[], since: D
   // 3. Link errors to files
   // Return error impact
 }
-```
+\`\`\`
 
 ### New UI Components
 

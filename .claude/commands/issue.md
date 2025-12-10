@@ -168,9 +168,9 @@ Work independently on this issue following a senior developer workflow: thorough
 
 ### Create Branch & Commits
 
-```bash
+\`\`\`bash
 git checkout -b issue-{{args}}/short-description
-```
+\`\`\`
 
 **Commit format**: `feat: description` or `fix: description`
 
@@ -180,7 +180,7 @@ git checkout -b issue-{{args}}/short-description
 
 ### Push & Create PR
 
-```bash
+\`\`\`bash
 git push -u origin issue-{{args}}/short-description
 
 gh pr create --title "Closes #{{args}}: <descriptive title>" --body "$(cat <<'EOF'
@@ -201,13 +201,13 @@ gh pr create --title "Closes #{{args}}: <descriptive title>" --body "$(cat <<'EO
 Closes #{{args}}
 EOF
 )"
-```
+\`\`\`
 
 ### Monitor CI/CD
 
-```bash
+\`\`\`bash
 gh pr checks --watch
-```
+\`\`\`
 
 - All CI checks must pass
 - If checks fail, fix immediately and push updates

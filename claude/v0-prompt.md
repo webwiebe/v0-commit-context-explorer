@@ -113,7 +113,7 @@ Available tools:
 
 ## Data Models
 
-```typescript
+\`\`\`typescript
 interface Release {
   id: string
   repository: string
@@ -194,7 +194,7 @@ interface SentryIssue {
   firstSeen: Date
   url: string
 }
-```
+\`\`\`
 
 ---
 
@@ -202,14 +202,14 @@ interface SentryIssue {
 
 Create `/lib/mcp/` with typed stubs:
 
-```
+\`\`\`
 /lib/mcp/
   github.ts      - repos, commits, prs, workflow runs (azure-mach-composer-deploy)
   jira.ts        - search tickets by key, get ticket details
   sentry.ts      - issues, releases, error search, seer analysis
   honeycomb.ts   - queries, slos, datasets (apollo-gateway, ecommerce-bff)
   types.ts       - shared interfaces
-```
+\`\`\`
 
 Each stub should:
 
@@ -221,26 +221,26 @@ Each stub should:
 
 ## API Routes
 
-```
+\`\`\`
 GET  /api/releases                     - List releases with filters
 GET  /api/releases/[id]                - Release detail
 GET  /api/releases/[id]/health         - Aggregated Sentry + Honeycomb health
 POST /api/releases/[id]/generate-notes - AI release notes generation
 GET  /api/workflows                    - Active GitHub Actions runs
 GET  /api/slos                         - All SLOs from Honeycomb
-```
+\`\`\`
 
 ---
 
 ## Page Structure
 
-```
+\`\`\`
 /                          → Dashboard overview
 /releases                  → Release timeline with filters
 /releases/[id]             → Release detail + impact + notes
 /workflows                 → Active azure-mach-composer-deploy runs
 /settings                  → MCP connection configuration
-```
+\`\`\`
 
 ---
 

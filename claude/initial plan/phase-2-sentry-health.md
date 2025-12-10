@@ -19,17 +19,17 @@ Connect to Sentry to show:
 
 ### Sentry MCP Tools
 
-```typescript
+\`\`\`typescript
 // From Sentry MCP documentation:
 // - get_issues - Retrieve issues by project/release
 // - search_errors - Find errors in specific files
 // - get_release_data - Release trends and error rates
 // - seer_analysis - AI root cause identification
-```
+\`\`\`
 
 ### Extended Data Model
 
-```typescript
+\`\`\`typescript
 interface DeploymentHealth {
   status: "healthy" | "degraded" | "critical"
   errorsBefore: number // Count in 1hr before deploy
@@ -51,7 +51,7 @@ interface SentryIssue {
   url: string // Link to Sentry
   seerAnalysis?: string // AI root cause if available
 }
-```
+\`\`\`
 
 ### UI Additions
 
@@ -89,7 +89,7 @@ interface SentryIssue {
 
 Create `/lib/mcp/sentry.ts`:
 
-```typescript
+\`\`\`typescript
 // Sentry MCP client stub
 // Actual MCP tools:
 // - get_issues
@@ -103,15 +103,15 @@ export interface SentryMCPClient {
   searchErrors(project: string, query: string): Promise<SentryIssue[]>
   getSeerAnalysis(issueId: string): Promise<SeerResult>
 }
-```
+\`\`\`
 
 ### API Routes (new)
 
-```
+\`\`\`
 GET /api/deployments/[id]/health   - Error health for deployment
 GET /api/issues/[id]/analyze       - Trigger Seer analysis
 GET /api/health/attention          - Deployments needing attention
-```
+\`\`\`
 
 ### Color Coding
 

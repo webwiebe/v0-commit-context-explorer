@@ -48,11 +48,11 @@ Input a commit SHA → fetch real context via MCP → display it.
 
 ## Cyberpunk Theme
 
-```
+\`\`\`
 Background:  #0a0a0f
 Cyan:        #00fff5
 Magenta:     #ff00ff
 Green:       #00ff00
 Orange:      #ff9500
 Red:         #ff0040
-```
+\`\`\`

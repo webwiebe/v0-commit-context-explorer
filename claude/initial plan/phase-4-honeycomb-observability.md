@@ -24,7 +24,7 @@ Connect to Honeycomb to show:
 
 ### Honeycomb MCP Tools
 
-```typescript
+\`\`\`typescript
 // From Honeycomb MCP documentation:
 // - run_query - Analytics queries with filters, aggregations
 // - list_slos / get_slo - SLO status and metrics
@@ -32,11 +32,11 @@ Connect to Honeycomb to show:
 // - analyze_columns - Statistical analysis
 // - get_trace_link - Generate trace URLs
 // - list_triggers / get_trigger - Alert configs
-```
+\`\`\`
 
 ### Extended Data Model
 
-```typescript
+\`\`\`typescript
 interface PerformanceHealth {
   datasets: DatasetMetrics[]
   slos: SLOStatus[]
@@ -78,7 +78,7 @@ interface SLOStatus {
   status: "met" | "at_risk" | "breached"
   url: string // Link to Honeycomb SLO page
 }
-```
+\`\`\`
 
 ### UI Additions
 
@@ -124,7 +124,7 @@ interface SLOStatus {
 
 Create `/lib/mcp/honeycomb.ts`:
 
-```typescript
+\`\`\`typescript
 // Honeycomb MCP client stub
 // Actual MCP tools:
 // - run_query
@@ -148,20 +148,20 @@ interface HoneycombQuery {
   time_range: number // seconds
   granularity?: number
 }
-```
+\`\`\`
 
 ### API Routes (new)
 
-```
+\`\`\`
 GET /api/deployments/[id]/performance  - Latency metrics
 GET /api/slos                          - All SLOs
 GET /api/slos/[id]                     - Single SLO detail
 GET /api/traces                        - Generate trace link
-```
+\`\`\`
 
 ### Health Status Logic (combined)
 
-```typescript
+\`\`\`typescript
 function calculateOverallHealth(
   sentry: SentryHealth,
   honeycomb: PerformanceHealth,
@@ -178,7 +178,7 @@ function calculateOverallHealth(
   // - 1-2 new Sentry issues
   // Healthy otherwise
 }
-```
+\`\`\`
 
 ### Success Criteria
 

@@ -18,7 +18,7 @@ Connect to Jira to:
 
 ### Ticket Extraction Logic
 
-```typescript
+\`\`\`typescript
 // Extract from commit messages and PR titles
 // Pattern: PX-\d+ (case insensitive)
 // Ignore: PX-0, PX-123 (dummy values)
@@ -28,11 +28,11 @@ function extractTicketRefs(text: string): string[] {
   const matches = text.matchAll(pattern)
   return [...matches].map((m) => m[0].toUpperCase()).filter((ref) => ref !== "PX-0" && ref !== "PX-123")
 }
-```
+\`\`\`
 
 ### Extended Data Model
 
-```typescript
+\`\`\`typescript
 interface JiraTicket {
   key: string // "PX-456"
   title: string
@@ -51,7 +51,7 @@ interface ReleaseNotes {
   other: string[] // Other changes
   generatedAt: Date
 }
-```
+\`\`\`
 
 ### UI Additions
 
@@ -90,7 +90,7 @@ interface ReleaseNotes {
 
 Create `/lib/mcp/jira.ts`:
 
-```typescript
+\`\`\`typescript
 // Jira MCP client stub
 // Actual MCP tools:
 // - get_issue
@@ -101,21 +101,21 @@ export interface JiraMCPClient {
   searchIssues(jql: string): Promise<JiraTicket[]>
   batchGetIssues(keys: string[]): Promise<JiraTicket[]>
 }
-```
+\`\`\`
 
 ### API Routes (new)
 
-```
+\`\`\`
 GET  /api/tickets/[key]                  - Single ticket details
 POST /api/tickets/batch                  - Batch fetch tickets
 POST /api/deployments/[id]/generate-notes - Generate release notes
-```
+\`\`\`
 
 ### Release Notes Generation
 
 Prompt structure for AI:
 
-```
+\`\`\`
 Generate concise release notes for a deployment.
 
 Commits:
@@ -135,7 +135,7 @@ Format as:
 - Features (new functionality)
 - Fixes (bug fixes)
 - Other (refactoring, dependencies, etc.)
-```
+\`\`\`
 
 ### Success Criteria
 

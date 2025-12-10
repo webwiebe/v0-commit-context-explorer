@@ -23,7 +23,7 @@ Connect to GitHub to show:
 
 ### Data Model
 
-```typescript
+\`\`\`typescript
 interface Deployment {
   id: string
   workflowRunId: number
@@ -54,14 +54,14 @@ interface PullRequest {
   mergedAt: Date
   url: string
 }
-```
+\`\`\`
 
 ### Pages
 
-```
+\`\`\`
 /                    → Dashboard with deployment timeline
 /deployments/[id]    → Deployment detail (commits, PRs, status)
-```
+\`\`\`
 
 ### Dashboard View
 
@@ -122,7 +122,7 @@ interface PullRequest {
 
 Create `/lib/mcp/github.ts`:
 
-```typescript
+\`\`\`typescript
 // GitHub MCP client stub
 // Actual MCP tools to call:
 // - list_workflow_runs
@@ -138,15 +138,15 @@ export interface GitHubMCPClient {
 }
 
 // Export mock implementation for now
-```
+\`\`\`
 
 ### API Routes
 
-```
+\`\`\`
 GET /api/deployments          - List recent deployments
 GET /api/deployments/[id]     - Deployment detail with commits/PRs
 GET /api/deployments/active   - Currently running deployments
-```
+\`\`\`
 
 ### Success Criteria
 

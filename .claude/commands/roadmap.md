@@ -10,13 +10,13 @@ Act as a strategic product owner/CEO to analyze the current backlog, define prod
 
 ### Fetch All Issues
 
-```bash
+\`\`\`bash
 # Get open issues with full context
 gh issue list --limit 100 --json number,title,labels,body,comments,createdAt,updatedAt,milestone,assignees --state open
 
 # Get recently closed issues for context
 gh issue list --limit 20 --json number,title,labels,closedAt --state closed
-```
+\`\`\`
 
 ### Understand Current State
 
@@ -34,14 +34,14 @@ gh issue list --limit 20 --json number,title,labels,closedAt --state closed
 
 3. **Review recent commits** (what's the team focused on?):
 
-   ```bash
+   \`\`\`bash
    git log --oneline --since="1 month ago" -30
-   ```
+   \`\`\`
 
 4. **Check milestones and projects**:
-   ```bash
+   \`\`\`bash
    gh issue list --json milestone | jq -r '.[].milestone.title' | sort | uniq
-   ```
+   \`\`\`
 
 ## STEP 2: ULTRATHINK - STRATEGIC ANALYSIS
 
@@ -155,7 +155,7 @@ gh issue list --limit 20 --json number,title,labels,closedAt --state closed
 
 Write a clear, compelling product vision:
 
-```markdown
+\`\`\`markdown
 ## Product Vision
 
 ### Mission
@@ -191,7 +191,7 @@ Write a clear, compelling product vision:
 - [Metric 1 - e.g., "Reduce churn by 15%"]
 - [Metric 2 - e.g., "Increase conversion by 25%"]
 - [Metric 3 - e.g., "Deploy frequency up 50%"]
-```
+\`\`\`
 
 ### Present to User
 
@@ -212,61 +212,61 @@ Based on approved strategy, update issues with:
 
 **Priority Labels**:
 
-```bash
+\`\`\`bash
 # Add priority labels to issues
 gh issue edit <number> --add-label "priority-critical"  # Tier 1
 gh issue edit <number> --add-label "priority-high"      # Tier 2
 gh issue edit <number> --add-label "priority-medium"    # Tier 3
 gh issue edit <number> --add-label "priority-low"       # Tier 4
-```
+\`\`\`
 
 **Strategic Theme Labels**:
 
-```bash
+\`\`\`bash
 # Tag with strategic themes
 gh issue edit <number> --add-label "theme-performance"
 gh issue edit <number> --add-label "theme-revenue"
 gh issue edit <number> --add-label "theme-ux"
 gh issue edit <number> --add-label "theme-infrastructure"
-```
+\`\`\`
 
 **Timeline Labels**:
 
-```bash
+\`\`\`bash
 gh issue edit <number> --add-label "timeline-now"      # 0-4 weeks
 gh issue edit <number> --add-label "timeline-next"     # 1-3 months
 gh issue edit <number> --add-label "timeline-future"   # 3-12 months
-```
+\`\`\`
 
 ### Create Milestones (if needed)
 
 For major strategic initiatives:
 
-```bash
+\`\`\`bash
 gh api repos/:owner/:repo/milestones -f title="Q1 2025: Performance & Scale" -f description="Strategic focus on performance improvements and scalability" -f due_on="2025-03-31T00:00:00Z"
-```
+\`\`\`
 
 Assign issues to milestones:
 
-```bash
+\`\`\`bash
 gh issue edit <number> --milestone "Q1 2025: Performance & Scale"
-```
+\`\`\`
 
 ### Add Strategic Context to Issues
 
 For key strategic issues, add comments explaining business context:
 
-```bash
+\`\`\`bash
 gh issue comment <number> --body "**Strategic Context**: This is a Tier 1 priority because it directly impacts customer retention. Estimated revenue impact: [X]. Part of our 'Performance & Reliability' theme for Q1."
-```
+\`\`\`
 
 ### Recommend Issue Closures
 
 For Tier 4 issues (questionable value), add comment explaining why they should be reconsidered:
 
-```bash
+\`\`\`bash
 gh issue comment <number> --body "**Roadmap Review**: After strategic analysis, this issue may not align with current product vision because [reason]. Recommend closing or deprioritizing unless there's business context I'm missing. Thoughts?"
-```
+\`\`\`
 
 **Don't close issues yourself** - let the user make the final call.
 
@@ -285,7 +285,7 @@ If your analysis reveals gaps, suggest creating new issues:
 
 Create or update scratchpad with strategic decisions:
 
-```markdown
+\`\`\`markdown
 .scratchpad/roadmap-[date].md
 
 # Product Roadmap - [Date]
@@ -311,13 +311,13 @@ Create or update scratchpad with strategic decisions:
 ## Next Review Date
 
 [When to revisit this roadmap]
-```
+\`\`\`
 
 ### Create Summary Report
 
 Provide user with actionable summary:
 
-```markdown
+\`\`\`markdown
 ## Roadmap Summary
 
 ### Immediate Actions (Next 4 Weeks)
@@ -348,7 +348,7 @@ Provide user with actionable summary:
 
 1. [Question 1]
 2. [Question 2]
-```
+\`\`\`
 
 ## GUIDING PRINCIPLES
 
