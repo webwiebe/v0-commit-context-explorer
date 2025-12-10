@@ -103,6 +103,38 @@ export interface MachConfigDeployment {
   components: ComponentVersionChange[]
 }
 
+// Sentry Release Health Types
+export interface ReleaseHealthMetrics {
+  release: string
+  environment: string
+  crashFreeSessionRate: number
+  crashFreeUserRate: number
+  adoptionRate: number
+  totalSessions: number
+  totalUsers: number
+  crashedSessions: number
+  erroredSessions: number
+  healthySessions: number
+  abnormalSessions: number
+  unhandledErrors: number
+  timeSeries: ReleaseHealthTimeSeries
+}
+
+export interface ReleaseHealthTimeSeries {
+  intervals: string[]
+  crashFreeSessions: number[]
+  sessions: number[]
+  crashedSessions: number[]
+}
+
+export interface SentryRelease {
+  version: string
+  dateCreated: string
+  dateReleased: string | null
+  firstEvent: string | null
+  lastEvent: string | null
+}
+
 // Settings & Integration types
 export type IntegrationStatus = "connected" | "not_configured" | "error"
 

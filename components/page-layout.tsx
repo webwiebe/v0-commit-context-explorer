@@ -14,11 +14,12 @@ import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts"
 interface PageLayoutProps {
   children: React.ReactNode
   isLoading?: boolean
-  initialMode?: "single" | "changelog" | "deployment"
+  initialMode?: "single" | "changelog" | "deployment" | "health"
   initialSha?: string
   initialFromSha?: string
   initialToSha?: string
   initialRepo?: string
+  initialRelease?: string
 }
 
 export function PageLayout({
@@ -29,6 +30,7 @@ export function PageLayout({
   initialFromSha,
   initialToSha,
   initialRepo,
+  initialRelease,
 }: PageLayoutProps) {
   // Easter egg: Konami code detection
   const { isActivated: konamiActivated, deactivate: deactivateKonami } = useKonamiCode()
@@ -114,6 +116,7 @@ export function PageLayout({
             initialFromSha={initialFromSha}
             initialToSha={initialToSha}
             initialRepo={initialRepo}
+            initialRelease={initialRelease}
           />
         </div>
 

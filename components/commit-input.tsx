@@ -6,7 +6,7 @@ import { useState, useEffect, forwardRef, useImperativeHandle, useRef } from "re
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Search, Settings, Plus, Trash2, GitCompare, GitCommit, Rocket } from "lucide-react"
+import { Search, Settings, Plus, Trash2, GitCompare, GitCommit, Rocket, HeartPulse } from "lucide-react"
 import { RecentDeployments } from "./recent-deployments"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import {
@@ -19,7 +19,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog"
 
-type SearchMode = "single" | "changelog" | "deployment"
+type SearchMode = "single" | "changelog" | "deployment" | "health"
 
 interface CommitInputProps {
   isLoading: boolean
@@ -28,6 +28,7 @@ interface CommitInputProps {
   initialFromSha?: string
   initialToSha?: string
   initialRepo?: string
+  initialRelease?: string
 }
 
 export interface CommitInputRef {
@@ -46,6 +47,7 @@ export const CommitInput = forwardRef<CommitInputRef, CommitInputProps>(function
     initialFromSha = "",
     initialToSha = "",
     initialRepo,
+    initialRelease = "",
   },
   ref
 ) {
@@ -55,6 +57,7 @@ export const CommitInput = forwardRef<CommitInputRef, CommitInputProps>(function
   const [fromSha, setFromSha] = useState(initialFromSha)
   const [toSha, setToSha] = useState(initialToSha)
   const [deploymentSha, setDeploymentSha] = useState(initialMode === "deployment" ? initialSha : "")
+  const [healthRelease, setHealthRelease] = useState(initialRelease)
   const [repo, setRepo] = useState(initialRepo || DEFAULT_REPO)
   const [repos, setRepos] = useState<string[]>([DEFAULT_REPO])
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -66,6 +69,7 @@ export const CommitInput = forwardRef<CommitInputRef, CommitInputProps>(function
   const shaInputRef = useRef<HTMLInputElement>(null)
   const fromShaInputRef = useRef<HTMLInputElement>(null)
   const deploymentShaInputRef = useRef<HTMLInputElement>(null)
+  const healthReleaseInputRef = useRef<HTMLInputElement>(null)
 
   // Expose focus and blur methods to parent
   useImperativeHandle(ref, () => ({
@@ -74,14 +78,17 @@ export const CommitInput = forwardRef<CommitInputRef, CommitInputProps>(function
         shaInputRef.current?.focus()
       } else if (mode === "changelog") {
         fromShaInputRef.current?.focus()
-      } else {
+      } else if (mode === "deployment") {
         deploymentShaInputRef.current?.focus()
+      } else {
+        healthReleaseInputRef.current?.focus()
       }
     },
     blur: () => {
       shaInputRef.current?.blur()
       fromShaInputRef.current?.blur()
       deploymentShaInputRef.current?.blur()
+      healthReleaseInputRef.current?.blur()
     },
   }))
 
@@ -168,6 +175,8 @@ export const CommitInput = forwardRef<CommitInputRef, CommitInputProps>(function
       router.push(`/changelog/${fromSha.trim()}..${toSha.trim()}?repo=${repoParam}`)
     } else if (mode === "deployment" && deploymentSha.trim() && repo.trim()) {
       router.push(`/deployment/${deploymentSha.trim()}?repo=${repoParam}`)
+    } else if (mode === "health" && healthRelease.trim()) {
+      router.push(`/health/${encodeURIComponent(healthRelease.trim())}`)
     }
   }
 
@@ -176,7 +185,9 @@ export const CommitInput = forwardRef<CommitInputRef, CommitInputProps>(function
       ? sha.trim() && repo.trim()
       : mode === "changelog"
         ? fromSha.trim() && toSha.trim() && repo.trim()
-        : deploymentSha.trim() && repo.trim()
+        : mode === "deployment"
+          ? deploymentSha.trim() && repo.trim()
+          : healthRelease.trim()
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -222,6 +233,20 @@ export const CommitInput = forwardRef<CommitInputRef, CommitInputProps>(function
         >
           <Rocket className="h-4 w-4 mr-2" />
           Deployment
+        </Button>
+        <Button
+          type="button"
+          variant={mode === "health" ? "default" : "outline"}
+          size="sm"
+          onClick={() => setMode("health")}
+          className={
+            mode === "health"
+              ? "bg-primary text-primary-foreground"
+              : "border-border hover:bg-secondary hover:border-cyan bg-transparent"
+          }
+        >
+          <HeartPulse className="h-4 w-4 mr-2" />
+          Release Health
         </Button>
       </div>
 
@@ -411,7 +436,7 @@ export const CommitInput = forwardRef<CommitInputRef, CommitInputProps>(function
               {isLoading ? "Generating..." : "Generate"}
             </Button>
           </div>
-        ) : (
+        ) : mode === "deployment" ? (
           <div className="flex flex-col gap-3">
             <div className="flex gap-3">
               <Input
@@ -432,6 +457,25 @@ export const CommitInput = forwardRef<CommitInputRef, CommitInputProps>(function
               </Button>
             </div>
             <RecentDeployments repo={repo} />
+          </div>
+        ) : (
+          <div className="flex gap-3">
+            <Input
+              ref={healthReleaseInputRef}
+              type="text"
+              placeholder="Release version or commit SHA..."
+              value={healthRelease}
+              onChange={(e) => setHealthRelease(e.target.value)}
+              className="flex-1 bg-secondary border-border font-mono text-sm placeholder:text-muted-foreground focus:border-cyan focus:ring-cyan"
+            />
+            <Button
+              type="submit"
+              disabled={isLoading || !isValid}
+              className="bg-primary text-primary-foreground hover:bg-primary/90 gap-2"
+            >
+              <HeartPulse className="h-4 w-4" />
+              {isLoading ? "Checking..." : "Check Health"}
+            </Button>
           </div>
         )}
       </div>

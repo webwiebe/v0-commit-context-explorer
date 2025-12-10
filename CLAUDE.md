@@ -4,12 +4,12 @@ A Next.js application that provides comprehensive context about Git commits, dep
 
 ## Quick Start
 
-\`\`\`bash
+```bash
 pnpm install      # Install dependencies
 pnpm dev          # Start development server (http://localhost:3000)
 pnpm build        # Production build
 pnpm lint         # Run ESLint
-\`\`\`
+```
 
 ## Tech Stack
 
@@ -21,7 +21,7 @@ pnpm lint         # Run ESLint
 
 ## Project Structure
 
-\`\`\`
+```
 app/
 ├── page.tsx                    # Main client component
 ├── layout.tsx                  # Root layout with Analytics
@@ -30,6 +30,8 @@ app/
     ├── commit/[sha]/route.ts   # Single commit context
     ├── changelog/route.ts      # Compare commits, AI summaries
     ├── mach-config/route.ts    # Deployment analysis
+    ├── sentry/
+    │   └── release-health/route.ts  # Sentry release health metrics
     └── easteregg/monkey/route.ts # Monkey engineer image generation
 
 components/
@@ -37,6 +39,8 @@ components/
 ├── commit-context-display.tsx  # Single commit view
 ├── changelog-display.tsx       # Changelog comparison view
 ├── deployment-display.tsx      # Mach-config deployment view
+├── release-health-display.tsx  # Sentry release health dashboard
+├── sparkline-chart.tsx         # SVG sparkline chart component
 ├── status-badge.tsx            # Deployment status indicators
 ├── ticket-badge.tsx            # Jira ticket references (PX-XXX)
 ├── author-hover.tsx            # Easter egg: monkey image on author hover
@@ -44,15 +48,18 @@ components/
 
 lib/
 ├── github.ts                   # GitHub API integration
+├── sentry.ts                   # Sentry API integration
 ├── types.ts                    # TypeScript interfaces
 └── utils.ts                    # Utility functions (cn)
-\`\`\`
+```
 
 ## Environment Variables
 
-\`\`\`bash
+```bash
 GITHUB_TOKEN=        # Optional but recommended for higher rate limits
-\`\`\`
+SENTRY_AUTH_TOKEN=   # Required for Sentry release health integration
+SENTRY_ORG=          # Sentry organization slug (default: frasers-group)
+```
 
 The Vercel AI integration uses the Vercel AI Gateway (configured automatically on Vercel) for both text generation (Claude) and image generation (Gemini Flash).
 
@@ -76,7 +83,14 @@ Analyzes deployment commits to `mach-config/` directory, parses version changes,
 
 **Query params**: `sha`, `repo`
 
+### GET `/api/sentry/release-health`
+
+Fetches Sentry release health metrics including crash-free rates, sessions, and 24h time series.
+
+**Query params**: `release` or `sha`, `project` (optional), `environment` (default: production)
+
 ### GET `/api/easteregg/monkey`
+
 Generates AI-powered humorous monkey engineer images using Google Gemini Flash via Vercel AI Gateway.
 
 **Query params**: `username`
@@ -92,9 +106,23 @@ All GitHub API calls are in [lib/github.ts](lib/github.ts). Key functions:
 - `extractTickets()` - Parse `PX-XXX` ticket references
 - `parseMachConfigVersionChanges()` - Parse version diffs in YAML
 
+## Sentry Integration
+
+All Sentry API calls are in [lib/sentry.ts](lib/sentry.ts). Key functions:
+
+- `fetchReleaseHealth()` - Get release health metrics (crash-free rates, sessions, adoption)
+- `resolveReleaseVersion()` - Map GitHub SHA to Sentry release version
+
+The Release Health dashboard displays:
+- **Crash-free session rate** with circular progress indicator
+- **Adoption rate** (percentage of users on this release)
+- **Total sessions and users**
+- **Unhandled errors count**
+- **24h time series** with sparkline charts for crash-free rate and session volume
+
 ## Key Types
 
-\`\`\`typescript
+```typescript
 interface CommitContext {
   commit: { sha, message, author, date, ticketRefs[] }
   pr: { number, title, mergedBy, url } | null
@@ -110,7 +138,14 @@ interface MachConfigDeployment {
   commitSha, commitMessage, author, date
   components: ComponentDeployment[]
 }
-\`\`\`
+
+interface ReleaseHealthMetrics {
+  release, environment
+  crashFreeSessionRate, crashFreeUserRate, adoptionRate
+  totalSessions, totalUsers, crashedSessions, unhandledErrors
+  timeSeries: { intervals[], crashFreeSessions[], sessions[] }
+}
+```
 
 ## Development Notes
 
@@ -122,13 +157,13 @@ interface MachConfigDeployment {
 
 ## Roadmap
 
-### Phase 1 (Current)
+### Phase 1 (Complete)
 
 GitHub integration with commit context, changelogs, and deployment analysis
 
-### Phase 2 (Planned)
+### Phase 2 (Complete)
 
-Sentry integration - correlate commits with error impact
+Sentry integration - release health dashboard with crash-free rates, adoption, and 24h time series
 
 ### Phase 3 (Planned)
 
