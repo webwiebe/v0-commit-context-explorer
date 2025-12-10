@@ -1,6 +1,6 @@
-import { type NextRequest, NextResponse } from "next/server";
-import { generateText } from "ai";
-import { openai } from "@ai-sdk/openai";
+import { type NextRequest, NextResponse } from "next/server"
+import { generateText } from "ai"
+import { openai } from "@ai-sdk/openai"
 
 const MONKEY_SCENARIOS = [
   "a cartoon monkey engineer holding a wrench upside down with a confused expression, trying to fix a computer",
@@ -11,23 +11,19 @@ const MONKEY_SCENARIOS = [
   "a cartoon monkey trying to plug a banana into a USB port",
   "a cartoon monkey reading a programming book upside down with a serious expression",
   "a cartoon monkey wearing safety goggles on top of its head while soldering incorrectly",
-];
+]
 
 export async function GET(request: NextRequest) {
-  const searchParams = request.nextUrl.searchParams;
-  const username = searchParams.get("username");
+  const searchParams = request.nextUrl.searchParams
+  const username = searchParams.get("username")
 
   if (!username) {
-    return NextResponse.json(
-      { error: "Missing required parameter: username" },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: "Missing required parameter: username" }, { status: 400 })
   }
 
   // Use username as seed for consistent scenario per user
-  const scenarioIndex =
-    Math.abs(hashString(username)) % MONKEY_SCENARIOS.length;
-  const scenario = MONKEY_SCENARIOS[scenarioIndex];
+  const scenarioIndex = Math.abs(hashString(username)) % MONKEY_SCENARIOS.length
+  const scenario = MONKEY_SCENARIOS[scenarioIndex]
 
   try {
     const result = await generateText({
@@ -39,30 +35,27 @@ export async function GET(request: NextRequest) {
           quality: "high",
         }),
       },
-    });
+    })
 
     return NextResponse.json({
-      image: result.files[0].base64,
-      mimeType: "image/png",
+      image: result.staticToolResults.find((result) => result.toolName === "image_generation")?.output.result,
+      mimeType: "image/webp",
       scenario: scenario,
-    });
+    })
   } catch (error) {
-    console.error("Monkey image generation failed:", error);
-    const message =
-      error instanceof Error
-        ? error.message
-        : "Failed to generate monkey image";
-    return NextResponse.json({ error: message }, { status: 500 });
+    console.error("Monkey image generation failed:", error)
+    const message = error instanceof Error ? error.message : "Failed to generate monkey image"
+    return NextResponse.json({ error: message }, { status: 500 })
   }
 }
 
 // Simple string hash function for consistent results per username
 function hashString(str: string): number {
-  let hash = 0;
+  let hash = 0
   for (let i = 0; i < str.length; i++) {
-    const char = str.charCodeAt(i);
-    hash = (hash << 5) - hash + char;
-    hash = hash & hash; // Convert to 32bit integer
+    const char = str.charCodeAt(i)
+    hash = (hash << 5) - hash + char
+    hash = hash & hash // Convert to 32bit integer
   }
-  return hash;
+  return hash
 }
