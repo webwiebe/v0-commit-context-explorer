@@ -5,6 +5,7 @@ import useSWR from "swr"
 import { PageLayout } from "@/components/page-layout"
 import { ChangelogDisplay } from "@/components/changelog-display"
 import { CopyLinkButton } from "@/components/copy-link-button"
+import { SnarkyLoader } from "@/components/snarky-loader"
 import { AlertCircle } from "lucide-react"
 import type { ChangelogContext } from "@/lib/types"
 import { useSearchParams } from "next/navigation"
@@ -75,14 +76,7 @@ export default function ChangelogPage({ params }: { params: Promise<{ range: str
       </div>
 
       {/* Loading State */}
-      {isLoading && (
-        <div className="flex items-center justify-center py-12">
-          <div className="flex items-center gap-3 text-muted-foreground">
-            <div className="h-5 w-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-            <span>Generating changelog...</span>
-          </div>
-        </div>
-      )}
+      {isLoading && <SnarkyLoader />}
 
       {/* Error State */}
       {error && (
