@@ -61,7 +61,7 @@ function DeploymentContent({ params }: { params: Promise<{ sha: string }> }) {
       )}
 
       {/* Results */}
-      {data && !isLoading && <DeploymentDisplay deployment={data} />}
+      {data && !isLoading && <DeploymentDisplay deployment={data} repo={repo} />}
     </PageLayout>
   )
 }

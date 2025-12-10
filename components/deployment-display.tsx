@@ -23,9 +23,11 @@ import { formatDistanceToNow } from "date-fns"
 import ReactMarkdown from "react-markdown"
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
+import { ReleaseNotesSection } from "@/components/release-notes-section"
 
 interface DeploymentDisplayProps {
   deployment: MachConfigDeployment
+  repo: string
 }
 
 function RiskBadge({ text }: { text: string }) {
@@ -54,7 +56,7 @@ function RiskBadge({ text }: { text: string }) {
   )
 }
 
-export function DeploymentDisplay({ deployment }: DeploymentDisplayProps) {
+export function DeploymentDisplay({ deployment, repo }: DeploymentDisplayProps) {
   const { commitSha, commitMessage, author, date, components } = deployment
   const [expandedComponents, setExpandedComponents] = useState<Set<string>>(
     new Set(components.map((c) => c.componentName)),
@@ -321,6 +323,17 @@ export function DeploymentDisplay({ deployment }: DeploymentDisplayProps) {
                     </div>
                   </div>
                 )}
+
+                <div className="pt-2 border-t border-border">
+                  <ReleaseNotesSection
+                    repo={repo}
+                    headRef={component.toVersion}
+                    baseRef={component.fromVersion}
+                    componentPath={component.componentPath}
+                    environment={component.environment}
+                    tickets={changelog.allTickets}
+                  />
+                </div>
               </div>
             )}
           </div>
