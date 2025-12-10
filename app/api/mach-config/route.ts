@@ -85,7 +85,7 @@ ${patchPreview}${file.patch && file.patch.length > 1000 ? "\n... (truncated)" : 
 
             try {
               const result = await generateText({
-                model: "anthropic/claude-sonnet-4-20250514",
+                model: "anthropic/claude-sonnet-4.5",
                 prompt: `You are a senior software engineer reviewing code changes for the "${change.componentName}" component being deployed to ${change.environment}.
 
 COMMITS:
