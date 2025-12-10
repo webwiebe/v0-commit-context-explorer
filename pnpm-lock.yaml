@@ -131,6 +131,9 @@ importers:
       '@vitest/ui':
         specifier: latest
         version: 4.0.15(vitest@4.0.15)
+      abort-controller:
+        specifier: 3.0.0
+        version: 3.0.0
       ai:
         specifier: latest
         version: 5.0.108(zod@3.25.76)
