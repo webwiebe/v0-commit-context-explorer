@@ -1,6 +1,6 @@
 // JIRA API client with caching
 import { getCached, setCache, CACHE_TTL } from "./cache"
-import { AbortSignal } from "abort-controller"
+// import { AbortSignal } from "abort-controller"
 
 // Default to sportsdirect.atlassian.net, can be overridden with JIRA_BASE_URL env var
 const JIRA_BASE_URL = process.env.JIRA_BASE_URL || "https://sportsdirect.atlassian.net"
@@ -136,7 +136,7 @@ export async function fetchJiraTicket(ticketKey: string): Promise<JiraTicket> {
       `${baseUrl}/rest/api/3/issue/${ticketKey}?fields=summary,status,issuetype,priority,assignee,reporter,description,labels`,
       {
         headers,
-        signal: (AbortSignal as any).timeout(10000),
+        // signal: (AbortSignal as any).timeout(10000),
       },
     )
 
@@ -264,7 +264,9 @@ export async function fetchJiraTicket(ticketKey: string): Promise<JiraTicket> {
     return ticket
   } catch (error) {
     jiraConnectionFailed = true
-    jiraFailureReason = "Network error connecting to JIRA"
+    const message = error instanceof Error ? error.message : "Unknown network error"
+    jiraFailureReason = `Network error connecting to JIRA: ${message}`
+    console.error("[jira] network error fetching ticket", ticketKey, message)
     return {
       key: ticketKey,
       summary: "",
@@ -276,7 +278,7 @@ export async function fetchJiraTicket(ticketKey: string): Promise<JiraTicket> {
       description: null,
       labels: [],
       url: `${baseUrl}/browse/${ticketKey}`,
-      error: "Network error",
+      error: "Network error: " + message,
     }
   }
 }
