@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { generateText } from "ai"
-import { fetchCommit, fetchCommitRange, extractJiraTickets } from "@/lib/github-api"
+import { generateText, type GenerateTextResult, type ToolSet } from "ai"
+//import { z } from "zod"
+import { fetchCommit, fetchCommitRange, extractJiraTickets, type CommitCompareResult } from "@/lib/github-api"
 import { getCached, setCache, CACHE_TTL } from "@/lib/cache"
 import { fetchJiraTickets, formatTicketsForAI, shouldAttemptJiraConnection, getJiraStatus } from "@/lib/jira"
 
@@ -8,6 +9,172 @@ interface ReleaseSummaries {
   business: string
   developer: string
   devops: string
+}
+
+/* const summarySchema = z.object({
+  overview: z.string().describe("2-3 sentence plain-English explanation of what these commits do overall"),
+  riskLevel: z.enum(["low", "medium", "high"]).describe("Overall risk level of the changes themselves"),
+  riskReason: z
+    .string()
+    .describe("Brief explanation of why this risk level was assigned based on the nature of the changes"),
+  endUsersImpact: z
+    .string()
+    .describe(
+      "How end users are impacted. MUST reference specific features, UI elements, or behaviors. If no impact, say 'No direct impact from these changes.'",
+    ),
+  operationsTeamImpact: z
+    .string()
+    .describe(
+      "How the operations team is impacted. MUST reference specific monitoring, deployment, or infrastructure concerns. If no impact, say 'No direct impact from these changes.'",
+    ),
+  businessImpact: z
+    .string()
+    .describe(
+      "How the business is impacted. MUST reference specific revenue, customer experience, or business process changes. If no impact, say 'No direct impact from these changes.'",
+    ),
+  thingsToWatch: z
+    .array(z.string())
+    .describe(
+      "MUST name specific features, buttons, pages, or user flows from the code. Each item must reference something a tester could actually find and click on. Never generic.",
+    ),
+}) */
+
+//type Summary = z.infer<typeof summarySchema>
+
+async function generateDevOpsSummary(compareData: CommitCompareResult): Promise</*Summary*/GenerateTextResult<ToolSet, never>> {
+  const commitMessages = compareData.commits.map((c) => c.message.split("\n")[0]).join("\n- ")
+
+  const filesChanged = compareData.files?.map((f) => ({
+    name: f.filename,
+    status: f.status,
+    additions: f.additions,
+    deletions: f.deletions,
+  }))
+
+  const totalAdditions = compareData.files?.reduce((sum, f) => sum + f.additions, 0) || 0
+  const totalDeletions = compareData.files?.reduce((sum, f) => sum + f.deletions, 0) || 0
+
+  const prompt = `Analyze this set of Git commits and assess their combined IMPACT and RISK to an ecommerce operations and/or devops team.
+
+**Number of Commits:** ${compareData.commits.length}
+
+**Commit Messages:**
+- ${commitMessages}
+
+**Overall Statistics:**
+- Files changed: ${compareData.files?.length || 0}
+- Total lines added: ${totalAdditions}
+- Total lines removed: ${totalDeletions}
+
+**All Code Changes (with diffs):**
+${JSON.stringify(filesChanged, null, 2)}
+
+=== CRITICAL INSTRUCTIONS - READ CAREFULLY ===
+
+Your output will be REJECTED if it contains generic statements. Every single thing you write must be traceable to a specific file, function, component, or code change in the diffs above.
+
+**COMPLETENESS - VERY IMPORTANT**
+You MUST capture ALL significant changes in your overview. Scan through EVERY file change and ensure nothing important is omitted. Pay special attention to:
+- Changes to calculations, formulas, or business logic (e.g., pricing, totals, discounts, gift cards)
+- Changes to data flows or what data is included/excluded
+- New features or removed features
+- Changes to validation or error handling
+
+If a change affects how values are calculated (e.g., including gift card values in price calculations), this MUST be mentioned in the overview.
+
+**AUDIENCE: This summary is for live operations teams who respond to incidents on the website, not developers.**
+
+**SECURITY AND SENSITIVITY RULES - MANDATORY**
+NEVER include any of the following in your output:
+- API keys, secrets, tokens, or credentials of any kind
+- App IDs, client IDs, or any identifiers from the code
+- Environment variable values (you can mention the variable name exists, but never its value)
+- URLs, domains, or endpoints that could be internal/sensitive
+- Database connection strings or configuration values
+- Any alphanumeric strings that look like keys or identifiers (e.g., "ABC123XYZ")
+
+Write in plain business English. Describe WHAT changes, not HOW it's configured. For example:
+- GOOD: "Search functionality has been updated to use a new provider"
+- BAD: "Algolia App ID ABC123 and Search Key XYZ789 have been added"
+
+**RISK ASSESSMENT**
+Assess risk of THE CHANGES, not the systems they touch.
+- LOW: Bug fixes, UI tweaks, docs, new features that don't modify existing behavior
+- MEDIUM: Changes to existing user-facing behavior, database schema changes, auth logic changes
+- HIGH: Only for genuinely dangerous changes - security control removal, payment logic changes, bulk migrations
+
+**WHO'S IMPACTED - THREE FIXED CATEGORIES**
+
+You MUST provide impact assessments for exactly three groups: Operations Team, End Users, and Business.
+
+Before writing ANY impact, ask yourself: "Can I point to a specific line of code that causes this impact?"
+
+If there is genuinely no impact for a category, write "No direct impact from these changes." - but think carefully first.
+
+BANNED PHRASES (if you use these, your output is wrong):
+- "may experience changes"  
+- "should be aware"
+- "requires monitoring" (unless you specify WHAT to monitor)
+- "may notice updates"
+- "new environment" or "production environment"
+- "site functionality" (too vague)
+- Any phrase that would be true for ANY deployment
+
+REQUIRED FORMAT: Every impact MUST name a specific feature, page, button, or behavior - in plain English suitable for non-technical readers.
+
+Examples of GOOD impacts (notice they name specific things in plain language):
+- End Users: "Will see a new 'Save for Later' button on product pages"
+- Operations Team: "Will need to update the search index configuration before deployment"
+- Business: "Checkout conversion may improve due to faster page load times on product pages"
+
+Examples of BAD impacts (these would be rejected):
+- "May experience improved performance" (which performance? where?)
+- "Will need to monitor the deployment" (always true, useless)
+- "Site functionality may be affected" (what functionality?)
+
+**THINGS TO WATCH - STRICT RULES**
+
+Each item MUST be a testable instruction that references something specific from the code changes, written in plain English.
+
+BANNED PHRASES:
+- "Test site functionality"
+- "Monitor for errors"
+- "Verify the deployment"  
+- "Check availability"
+- "Test affected pages" (which pages?)
+- Any mention of "production" or "infrastructure" generically
+- "Test the [system name]" without specifying what to test
+
+REQUIRED FORMAT: Describe what a user would actually do and see. A non-technical QA tester should understand exactly what to check.
+
+Examples of GOOD items:
+- "Try adding more than 99 items to the shopping cart and verify it shows an error message"
+- "Request a password reset email and check the link still works after 24 hours"
+- "Search for a product and verify images appear correctly in the results"
+
+Examples of BAD items (these would be rejected):
+- "Test checkout functionality" (what specifically about checkout?)
+- "Verify site works after deployment" (always true, useless)
+- "Monitor error rates" (not a testable action)
+
+REMEMBER: A non-technical person should be able to read each item and know EXACTLY what to do. Write for humans, not developers.`
+
+  /* const { object } = await generateObject({
+    model: "anthropic/claude-sonnet-4-20250514",
+    schema: summarySchema,
+    prompt,
+    temperature: 0, // Set temperature to 0 for deterministic, consistent outputs
+  }) */
+
+  //return object
+
+  const result = await generateText({
+    model: "anthropic/claude-sonnet-4-20250514",
+    prompt,
+    temperature: 0, // Set temperature to 0 for deterministic, consistent outputs
+  })
+
+  return result
 }
 
 export async function POST(request: NextRequest) {
@@ -240,24 +407,7 @@ Rules:
         // maxTokens: 1500,
       }),
 
-      generateText({
-        model: "anthropic/claude-sonnet-4-20250514",
-        system: `You are a DevOps engineer writing deployment notes and risk assessment.
-Focus on:
-- Risk profile (Low/Medium/High) with justification
-- Infrastructure changes (new services, config changes, env vars)
-- Database migrations or schema changes
-- Performance implications
-- Monitoring recommendations (what to watch post-deployment)
-- Rollback considerations
-- Dependencies on external services
-- Deployment order if multiple services affected
-
-Be specific about what needs attention during and after deployment.
-Start with an overall risk assessment, then detail specific concerns.`,
-        prompt: `Generate DevOps-focused deployment notes and risk assessment:\n${contextForAI}`,
-        // maxTokens: 800,
-      }),
+      generateDevOpsSummary(commitData),
     ])
 
     const summaries: ReleaseSummaries = {
