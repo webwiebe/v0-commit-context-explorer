@@ -1,4 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
+import * as Sentry from "@sentry/nextjs"
 import { getCommitDiff, parseMachConfigVersionChanges, compareCommitsScoped } from "@/lib/github"
 import { generateText } from "ai"
 import type { ComponentVersionChange, MachConfigDeployment } from "@/lib/types"
@@ -131,6 +132,10 @@ Keep it brief and actionable for the deployment team.`,
 
     return NextResponse.json(deployment)
   } catch (error) {
+    Sentry.captureException(error, {
+      tags: { api: "mach-config", repo },
+      extra: { sha, owner, repoName },
+    })
     const message = error instanceof Error ? error.message : "Failed to analyze mach-config deployment"
     return NextResponse.json({ error: message }, { status: 500 })
   }
