@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server"
+import * as Sentry from "@sentry/nextjs"
 import { compareCommits } from "@/lib/github"
 import { generateText } from "ai"
-import { gateway } from "@ai-sdk/gateway"
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams
@@ -43,8 +43,7 @@ ${patchPreview}${file.patch && file.patch.length > 1500 ? "\n... (truncated)" : 
 
       try {
         const { text } = await generateText({
-          model: gateway("anthropic:claude-sonnet-4-20250514"),
-          maxOutputTokens: 1000,
+          model: "anthropic/claude-sonnet-4.5",
           prompt: `You are a senior software engineer reviewing code changes. Analyze the following git diff and commit messages, then provide a concise summary.
 
 COMMITS:
@@ -70,6 +69,10 @@ Keep it concise and technical. Focus on what matters to developers reviewing thi
 
     return NextResponse.json({ ...changelog, summary })
   } catch (error) {
+    Sentry.captureException(error, {
+      tags: { api: "changelog", repo },
+      extra: { from, to, owner, repoName },
+    })
     const message = error instanceof Error ? error.message : "Failed to generate changelog"
     return NextResponse.json({ error: message }, { status: 500 })
   }

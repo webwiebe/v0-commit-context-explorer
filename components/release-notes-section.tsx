@@ -17,6 +17,7 @@ import {
   Plus,
   Shield,
   Sparkles,
+  RefreshCw,
   Ticket,
 } from "lucide-react"
 
@@ -114,6 +115,7 @@ export function ReleaseNotesSection({
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [result, setResult] = useState<ReleaseResult | null>(null)
+  const [resettingJira, setResettingJira] = useState(false)
 
   const handleGenerate = async () => {
     if (!repo || !headRef) return
@@ -145,6 +147,18 @@ export function ReleaseNotesSection({
       setError(err instanceof Error ? err.message : "An error occurred")
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleResetJira = async () => {
+    setResettingJira(true)
+    try {
+      await fetch("/api/jira/status", { method: "POST" })
+      if (result) {
+        await handleGenerate()
+      }
+    } finally {
+      setResettingJira(false)
     }
   }
 
@@ -252,6 +266,34 @@ export function ReleaseNotesSection({
               </TabsList>
 
               <TabsContent value="tickets" className="mt-0 space-y-2">
+                {result.jiraStatus?.connectionFailed && (
+                  <div className="p-3 rounded-md border border-amber-500/50 bg-amber-500/10">
+                    <div className="flex items-start gap-2">
+                      <AlertCircle className="h-4 w-4 text-amber-500 mt-0.5" />
+                      <div className="space-y-1 text-sm">
+                        <p className="text-amber-700 dark:text-amber-300 font-medium">JIRA connection unavailable</p>
+                        {result.jiraStatus.failureReason && (
+                          <p className="text-xs text-muted-foreground">{result.jiraStatus.failureReason}</p>
+                        )}
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={handleResetJira}
+                          disabled={resettingJira}
+                          className="h-7 text-xs bg-transparent gap-1"
+                        >
+                          {resettingJira ? (
+                            <Loader2 className="h-3 w-3 animate-spin" />
+                          ) : (
+                            <RefreshCw className="h-3 w-3" />
+                          )}
+                          Retry JIRA
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {result.ticketDetails && result.ticketDetails.length > 0 ? (
                   result.ticketDetails.map((ticket) => (
                     <a
