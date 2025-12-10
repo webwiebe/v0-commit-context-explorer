@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Search, Settings, Plus, Trash2, GitCompare, GitCommit, Rocket } from "lucide-react"
+import { RecentDeployments } from "./recent-deployments"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import {
   Dialog,
@@ -411,23 +412,26 @@ export const CommitInput = forwardRef<CommitInputRef, CommitInputProps>(function
             </Button>
           </div>
         ) : (
-          <div className="flex gap-3">
-            <Input
-              ref={deploymentShaInputRef}
-              type="text"
-              placeholder="Mach-config commit SHA..."
-              value={deploymentSha}
-              onChange={(e) => setDeploymentSha(e.target.value)}
-              className="flex-1 bg-secondary border-border font-mono text-sm placeholder:text-muted-foreground focus:border-cyan focus:ring-cyan"
-            />
-            <Button
-              type="submit"
-              disabled={isLoading || !isValid}
-              className="bg-primary text-primary-foreground hover:bg-primary/90 gap-2"
-            >
-              <Rocket className="h-4 w-4" />
-              {isLoading ? "Analyzing..." : "Analyze"}
-            </Button>
+          <div className="flex flex-col gap-3">
+            <div className="flex gap-3">
+              <Input
+                ref={deploymentShaInputRef}
+                type="text"
+                placeholder="Mach-config commit SHA..."
+                value={deploymentSha}
+                onChange={(e) => setDeploymentSha(e.target.value)}
+                className="flex-1 bg-secondary border-border font-mono text-sm placeholder:text-muted-foreground focus:border-cyan focus:ring-cyan"
+              />
+              <Button
+                type="submit"
+                disabled={isLoading || !isValid}
+                className="bg-primary text-primary-foreground hover:bg-primary/90 gap-2"
+              >
+                <Rocket className="h-4 w-4" />
+                {isLoading ? "Analyzing..." : "Analyze"}
+              </Button>
+            </div>
+            <RecentDeployments repo={repo} />
           </div>
         )}
       </div>
