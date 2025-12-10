@@ -1,18 +1,10 @@
 import { NextResponse } from "next/server"
 import { generateText } from "ai"
-import { createOpenAI } from "@ai-sdk/openai"
-
-// Create xAI provider (Grok uses OpenAI-compatible API)
-const xai = createOpenAI({
-  name: "xai",
-  baseURL: "https://api.x.ai/v1",
-  apiKey: process.env.XAI_API_KEY,
-})
 
 export async function GET() {
   try {
     const { text } = await generateText({
-      model: xai("grok-3-mini"),
+      model: "xai/grok-3-mini",
       prompt: `Generate a single snarky, sarcastic loading message for a developer tool that generates release notes/changelogs.
 
 The message should:
