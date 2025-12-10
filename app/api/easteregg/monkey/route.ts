@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { generateText } from "ai";
+import { openai } from "@ai-sdk/openai";
 
 const MONKEY_SCENARIOS = [
   "a cartoon monkey engineer holding a wrench upside down with a confused expression, trying to fix a computer",
@@ -30,8 +31,14 @@ export async function GET(request: NextRequest) {
 
   try {
     const result = await generateText({
-      model: "google/gemini-2.5-flash-image",
+      model: "openai/gpt-5.1-instant",
       prompt: `${scenario}. Digital art style, humorous, cute, vibrant colors, simple background. The scene should be funny and lighthearted.`,
+      tools: {
+        image_generation: openai.tools.imageGeneration({
+          outputFormat: "webp",
+          quality: "high",
+        }),
+      },
     });
 
     return NextResponse.json({
