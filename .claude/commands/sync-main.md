@@ -8,10 +8,10 @@ Integrate the latest changes from `origin/main` into the current branch and reso
 
 ## STEP 1: ASSESS CURRENT STATE
 
-```bash
+\`\`\`bash
 git status
 git branch --show-current
-```
+\`\`\`
 
 - Ensure working directory is clean (no uncommitted changes)
 - If there are uncommitted changes, stash them first with `git stash`
@@ -19,10 +19,10 @@ git branch --show-current
 
 ## STEP 2: FETCH AND MERGE
 
-```bash
+\`\`\`bash
 git fetch origin main
 git merge origin/main
-```
+\`\`\`
 
 If the merge succeeds without conflicts, skip to STEP 4.
 
@@ -31,9 +31,9 @@ If the merge succeeds without conflicts, skip to STEP 4.
 If there are merge conflicts:
 
 1. **Identify conflicting files**:
-   ```bash
+   \`\`\`bash
    git diff --name-only --diff-filter=U
-   ```
+   \`\`\`
 
 2. **For each conflicting file**:
    - Read the file to understand both versions
@@ -43,34 +43,34 @@ If there are merge conflicts:
    - Ensure the resolved code is syntactically correct and logically sound
 
 3. **Stage resolved files**:
-   ```bash
+   \`\`\`bash
    git add <resolved-file>
-   ```
+   \`\`\`
 
 4. **After all conflicts are resolved**:
-   ```bash
+   \`\`\`bash
    git commit -m "Merge origin/main into $(git branch --show-current)"
-   ```
+   \`\`\`
 
 ## STEP 4: VERIFY
 
 1. **Check merge completed**:
-   ```bash
+   \`\`\`bash
    git status
    git log --oneline -5
-   ```
+   \`\`\`
 
 2. **Run project checks** (if applicable):
-   ```bash
+   \`\`\`bash
    pnpm install  # in case dependencies changed
    pnpm build
    pnpm lint
-   ```
+   \`\`\`
 
 3. **If stashed changes exist**:
-   ```bash
+   \`\`\`bash
    git stash pop
-   ```
+   \`\`\`
    Resolve any stash conflicts the same way as merge conflicts.
 
 ## STEP 5: REPORT

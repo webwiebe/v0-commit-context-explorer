@@ -16,7 +16,7 @@
     "@ai-sdk/anthropic": "^2.0.54",
     "@ai-sdk/gateway": "^2.0.18",
     "@ai-sdk/google": "^2.0.45",
-    "@ai-sdk/openai": "^2.0.80",
+    "@ai-sdk/openai": "latest",
     "@edge-runtime/vm": "latest",
     "@hookform/resolvers": "^3.10.0",
     "@opentelemetry/api": "latest",
@@ -105,7 +105,7 @@
     "prettier": "^3.7.4",
     "tailwindcss": "^4.1.9",
     "tw-animate-css": "1.3.3",
-    "typescript": "^5.9.3",
+    "typescript": "^5",
     "typescript-eslint": "^8.49.0",
     "vitest": "^4.0.15"
   }
