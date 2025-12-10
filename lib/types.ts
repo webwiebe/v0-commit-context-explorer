@@ -103,6 +103,52 @@ export interface MachConfigDeployment {
   components: ComponentVersionChange[]
 }
 
+// Honeycomb types
+export type HoneycombQueryType = "errors" | "latency" | "throughput" | "traces"
+
+export interface HoneycombQueryConfig {
+  type: HoneycombQueryType
+  label: string
+  description: string
+  icon: string
+}
+
+export interface HoneycombQueryParams {
+  dataset: string
+  team: string
+  environment?: string
+  startTime: string // ISO timestamp
+  endTime: string // ISO timestamp
+  filters?: HoneycombFilter[]
+  breakdowns?: string[]
+  calculations?: HoneycombCalculation[]
+}
+
+export interface HoneycombFilter {
+  column: string
+  op: "=" | "!=" | ">" | "<" | "contains" | "starts-with" | "exists"
+  value: string | number | boolean
+}
+
+export interface HoneycombCalculation {
+  op: "COUNT" | "AVG" | "P50" | "P95" | "P99" | "MAX" | "MIN" | "SUM" | "HEATMAP"
+  column?: string
+}
+
+export interface HoneycombQueryUrl {
+  type: HoneycombQueryType
+  label: string
+  description: string
+  url: string
+}
+
+export interface HoneycombConfig {
+  team: string
+  dataset: string
+  environment?: string
+  apiEndpoint?: string // defaults to US, set to https://api.eu1.honeycomb.io for EU
+}
+
 // Settings & Integration types
 export type IntegrationStatus = "connected" | "not_configured" | "error"
 

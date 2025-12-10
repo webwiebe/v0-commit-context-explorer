@@ -30,6 +30,7 @@ app/
     ├── commit/[sha]/route.ts   # Single commit context
     ├── changelog/route.ts      # Compare commits, AI summaries
     ├── mach-config/route.ts    # Deployment analysis
+    ├── honeycomb/route.ts      # Honeycomb query URL generation
     └── easteregg/monkey/route.ts # Monkey engineer image generation
 
 components/
@@ -37,6 +38,7 @@ components/
 ├── commit-context-display.tsx  # Single commit view
 ├── changelog-display.tsx       # Changelog comparison view
 ├── deployment-display.tsx      # Mach-config deployment view
+├── honeycomb-queries.tsx       # Honeycomb observability quick actions
 ├── status-badge.tsx            # Deployment status indicators
 ├── ticket-badge.tsx            # Jira ticket references (PX-XXX)
 ├── author-hover.tsx            # Easter egg: monkey image on author hover
@@ -44,6 +46,7 @@ components/
 
 lib/
 ├── github.ts                   # GitHub API integration
+├── honeycomb.ts                # Honeycomb query URL generation
 ├── types.ts                    # TypeScript interfaces
 └── utils.ts                    # Utility functions (cn)
 ```
@@ -51,7 +54,14 @@ lib/
 ## Environment Variables
 
 ```bash
-GITHUB_TOKEN=        # Optional but recommended for higher rate limits
+GITHUB_TOKEN=           # Optional but recommended for higher rate limits
+
+# Honeycomb Integration (Phase 4)
+HONEYCOMB_API_KEY=      # Honeycomb API key (required for Honeycomb integration)
+HONEYCOMB_TEAM=         # Honeycomb team slug
+HONEYCOMB_DATASET=      # Default dataset to query
+HONEYCOMB_ENVIRONMENT=  # Optional: Honeycomb environment name
+HONEYCOMB_API_ENDPOINT= # Optional: Set to https://api.eu1.honeycomb.io for EU
 ```
 
 The Vercel AI integration uses the Vercel AI Gateway (configured automatically on Vercel) for both text generation (Claude) and image generation (Gemini Flash).
@@ -73,6 +83,13 @@ Analyzes deployment commits to `mach-config/` directory, parses version changes,
 
 **Query params**: `sha`, `repo`
 
+### GET `/api/honeycomb`
+Generates Honeycomb query URLs for deployment observability (errors, latency, throughput, traces).
+
+**Query params**: `deploymentDate` (required), `componentName` (optional), `windowHours` (optional, default: 1)
+
+**Response**: Returns query URLs pre-filtered to post-deployment time window
+
 ### GET `/api/easteregg/monkey`
 Generates AI-powered humorous monkey engineer images using Google Gemini Flash via Vercel AI Gateway.
 
@@ -88,6 +105,22 @@ All GitHub API calls are in [lib/github.ts](lib/github.ts). Key functions:
 - `compareCommits()` / `compareCommitsScoped()` - Compare SHAs
 - `extractTickets()` - Parse `PX-XXX` ticket references
 - `parseMachConfigVersionChanges()` - Parse version diffs in YAML
+
+## Honeycomb Integration
+
+All Honeycomb query URL generation is in [lib/honeycomb.ts](lib/honeycomb.ts). Key functions:
+
+- `generateDeploymentQueries()` - Generate query URLs for a deployment time window
+- `generateComponentQueries()` - Generate queries scoped to a specific component/service
+- `buildHoneycombQueryUrl()` - Build a Honeycomb query URL with encoded parameters
+- `buildTraceUrl()` - Generate direct trace link URL
+- `mapComponentToService()` - Map component names to Honeycomb service names
+
+Query templates support:
+- **Errors**: Error rate and failed requests (filtered by `error=true`)
+- **Latency**: P50/P95/P99 latency heatmap and percentiles
+- **Throughput**: Request volume by endpoint and method
+- **Traces**: Sample traces for investigation
 
 ## Key Types
 
@@ -107,6 +140,13 @@ interface MachConfigDeployment {
   commitSha, commitMessage, author, date
   components: ComponentDeployment[]
 }
+
+interface HoneycombQueryUrl {
+  type: "errors" | "latency" | "throughput" | "traces"
+  label: string
+  description: string
+  url: string
+}
 ```
 
 ## Development Notes
@@ -119,7 +159,7 @@ interface MachConfigDeployment {
 
 ## Roadmap
 
-### Phase 1 (Current)
+### Phase 1 (Complete)
 GitHub integration with commit context, changelogs, and deployment analysis
 
 ### Phase 2 (Planned)
@@ -128,8 +168,11 @@ Sentry integration - correlate commits with error impact
 ### Phase 3 (Planned)
 Jira integration - enrich ticket references with status, assignee, description
 
-### Phase 4 (Planned)
+### Phase 4 (Current)
 Honeycomb integration - link deployments to observability metrics
+- Query URL generation for errors, latency, throughput, traces
+- Pre-filtered to deployment time window
+- Component-scoped queries for detailed investigation
 
 ## Conventions
 

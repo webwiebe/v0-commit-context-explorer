@@ -1,9 +1,10 @@
 "use client"
 
-import type { MachConfigDeployment } from "@/lib/types"
+import type { MachConfigDeployment, HoneycombQueryUrl } from "@/lib/types"
 import { ContextCard } from "./context-card"
 import { TicketBadge } from "./ticket-badge"
 import { AuthorHover } from "./author-hover"
+import { HoneycombQueries, HoneycombQueriesCompact } from "./honeycomb-queries"
 import {
   Rocket,
   GitCommit,
@@ -22,10 +23,51 @@ import {
 import { formatDistanceToNow } from "date-fns"
 import ReactMarkdown from "react-markdown"
 import { useState } from "react"
+import useSWR from "swr"
 import { Button } from "@/components/ui/button"
 
 interface DeploymentDisplayProps {
   deployment: MachConfigDeployment
+}
+
+interface HoneycombResponse {
+  configured: boolean
+  queries: HoneycombQueryUrl[]
+  config?: {
+    team: string
+    dataset: string
+    environment?: string
+    isEU: boolean
+  }
+  error?: string
+}
+
+const honeycombFetcher = async (url: string): Promise<HoneycombResponse> => {
+  const res = await fetch(url)
+  return res.json()
+}
+
+function ComponentHoneycombQueries({
+  componentName,
+  deploymentDate
+}: {
+  componentName: string
+  deploymentDate: string
+}) {
+  const { data } = useSWR<HoneycombResponse>(
+    `/api/honeycomb?deploymentDate=${encodeURIComponent(deploymentDate)}&componentName=${encodeURIComponent(componentName)}`,
+    honeycombFetcher
+  )
+
+  if (!data?.configured || data.queries.length === 0) {
+    return null
+  }
+
+  return (
+    <div className="pt-2">
+      <HoneycombQueriesCompact queries={data.queries} />
+    </div>
+  )
 }
 
 function RiskBadge({ text }: { text: string }) {
@@ -58,6 +100,12 @@ export function DeploymentDisplay({ deployment }: DeploymentDisplayProps) {
   const { commitSha, commitMessage, author, date, components } = deployment
   const [expandedComponents, setExpandedComponents] = useState<Set<string>>(
     new Set(components.map((c) => c.componentName)),
+  )
+
+  // Fetch Honeycomb queries for the deployment
+  const { data: honeycombData } = useSWR<HoneycombResponse>(
+    date ? `/api/honeycomb?deploymentDate=${encodeURIComponent(date)}` : null,
+    honeycombFetcher
   )
 
   const toggleComponent = (name: string) => {
@@ -131,6 +179,14 @@ export function DeploymentDisplay({ deployment }: DeploymentDisplayProps) {
           )}
         </div>
       </ContextCard>
+
+      {/* Honeycomb Observability Queries */}
+      {honeycombData?.configured && honeycombData.queries.length > 0 && (
+        <HoneycombQueries
+          queries={honeycombData.queries}
+          deploymentTime={date}
+        />
+      )}
 
       {/* Component Changes */}
       {components.map((component) => {
@@ -214,6 +270,12 @@ export function DeploymentDisplay({ deployment }: DeploymentDisplayProps) {
                     </div>
                   </div>
                 )}
+
+                {/* Component Honeycomb Queries */}
+                <ComponentHoneycombQueries
+                  componentName={component.componentName}
+                  deploymentDate={date}
+                />
 
                 {/* Files Changed */}
                 {changelog.files.length > 0 && (
