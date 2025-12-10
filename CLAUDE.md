@@ -4,12 +4,12 @@ A Next.js application that provides comprehensive context about Git commits, dep
 
 ## Quick Start
 
-```bash
+\`\`\`bash
 pnpm install      # Install dependencies
 pnpm dev          # Start development server (http://localhost:3000)
 pnpm build        # Production build
 pnpm lint         # Run ESLint
-```
+\`\`\`
 
 ## Tech Stack
 
@@ -21,7 +21,7 @@ pnpm lint         # Run ESLint
 
 ## Project Structure
 
-```
+\`\`\`
 app/
 ├── page.tsx                    # Main client component
 ├── layout.tsx                  # Root layout with Analytics
@@ -46,29 +46,32 @@ lib/
 ├── github.ts                   # GitHub API integration
 ├── types.ts                    # TypeScript interfaces
 └── utils.ts                    # Utility functions (cn)
-```
+\`\`\`
 
 ## Environment Variables
 
-```bash
+\`\`\`bash
 GITHUB_TOKEN=        # Optional but recommended for higher rate limits
-```
+\`\`\`
 
 The Vercel AI integration uses the Vercel AI Gateway (configured automatically on Vercel) for both text generation (Claude) and image generation (Gemini Flash).
 
 ## API Routes
 
 ### GET `/api/commit/[sha]`
+
 Fetches single commit context including PR info and deployment status.
 
 **Query params**: `repo` (default: `FrasersGroup/website`)
 
 ### GET `/api/changelog`
+
 Compares two commits and generates AI-powered changelog summary.
 
 **Query params**: `from`, `to`, `repo`
 
 ### GET `/api/mach-config`
+
 Analyzes deployment commits to `mach-config/` directory, parses version changes, and generates risk assessments.
 
 **Query params**: `sha`, `repo`
@@ -91,7 +94,7 @@ All GitHub API calls are in [lib/github.ts](lib/github.ts). Key functions:
 
 ## Key Types
 
-```typescript
+\`\`\`typescript
 interface CommitContext {
   commit: { sha, message, author, date, ticketRefs[] }
   pr: { number, title, mergedBy, url } | null
@@ -107,7 +110,7 @@ interface MachConfigDeployment {
   commitSha, commitMessage, author, date
   components: ComponentDeployment[]
 }
-```
+\`\`\`
 
 ## Development Notes
 
@@ -120,15 +123,19 @@ interface MachConfigDeployment {
 ## Roadmap
 
 ### Phase 1 (Current)
+
 GitHub integration with commit context, changelogs, and deployment analysis
 
 ### Phase 2 (Planned)
+
 Sentry integration - correlate commits with error impact
 
 ### Phase 3 (Planned)
+
 Jira integration - enrich ticket references with status, assignee, description
 
 ### Phase 4 (Planned)
+
 Honeycomb integration - link deployments to observability metrics
 
 ## Conventions

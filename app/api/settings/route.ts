@@ -19,9 +19,7 @@ function getIntegrationStatus(): IntegrationConfig[] {
       status: process.env.SENTRY_AUTH_TOKEN && process.env.SENTRY_ORG ? "connected" : "not_configured",
       configuredVia: process.env.SENTRY_AUTH_TOKEN ? "env" : null,
       details:
-        process.env.SENTRY_AUTH_TOKEN && process.env.SENTRY_ORG
-          ? `Organization: ${process.env.SENTRY_ORG}`
-          : undefined,
+        process.env.SENTRY_AUTH_TOKEN && process.env.SENTRY_ORG ? `Organization: ${process.env.SENTRY_ORG}` : undefined,
     },
     {
       id: "jira",
@@ -33,9 +31,7 @@ function getIntegrationStatus(): IntegrationConfig[] {
           : "not_configured",
       configuredVia: process.env.JIRA_API_TOKEN ? "env" : null,
       details:
-        process.env.JIRA_API_TOKEN && process.env.JIRA_BASE_URL
-          ? `Instance: ${process.env.JIRA_BASE_URL}`
-          : undefined,
+        process.env.JIRA_API_TOKEN && process.env.JIRA_BASE_URL ? `Instance: ${process.env.JIRA_BASE_URL}` : undefined,
     },
     {
       id: "honeycomb",

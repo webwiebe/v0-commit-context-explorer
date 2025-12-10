@@ -1,6 +1,7 @@
 import nextPlugin from "@next/eslint-plugin-next"
 import tseslint from "typescript-eslint"
 import tsParser from "@typescript-eslint/parser"
+import eslintConfigPrettier from "eslint-config-prettier"
 
 export default [
   {
@@ -29,4 +30,5 @@ export default [
       "@typescript-eslint/no-explicit-any": "off",
     },
   },
+  eslintConfigPrettier,
 ]

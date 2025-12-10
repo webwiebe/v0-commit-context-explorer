@@ -21,7 +21,8 @@ const integrationIcons: Record<string, React.ReactNode> = {
 }
 
 const integrationDocs: Record<string, string> = {
-  github: "https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens",
+  github:
+    "https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens",
   sentry: "https://docs.sentry.io/api/auth/",
   jira: "https://support.atlassian.com/atlassian-account/docs/manage-api-tokens-for-your-atlassian-account/",
   honeycomb: "https://docs.honeycomb.io/get-started/configure/environments/manage-api-keys/",
@@ -124,10 +125,12 @@ export default function SettingsPage() {
         <div className="mt-8 p-4 rounded-lg bg-secondary/50 border border-border">
           <h3 className="text-sm font-medium text-foreground mb-2">Configuration Guide</h3>
           <p className="text-sm text-muted-foreground mb-3">
-            Integrations are configured via environment variables. Create a <code className="px-1.5 py-0.5 bg-muted rounded text-cyan text-xs font-mono">.env.local</code> file in your project root:
+            Integrations are configured via environment variables. Create a{" "}
+            <code className="px-1.5 py-0.5 bg-muted rounded text-cyan text-xs font-mono">.env.local</code> file in your
+            project root:
           </p>
           <pre className="p-3 bg-background rounded-md border border-border text-xs font-mono text-muted-foreground overflow-x-auto">
-{`# GitHub (required for basic functionality)
+            {`# GitHub (required for basic functionality)
 GITHUB_TOKEN=ghp_xxxxxxxxxxxxxxxxxxxx
 
 # Sentry (Phase 2 - error correlation)
