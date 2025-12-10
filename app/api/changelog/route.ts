@@ -1,4 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
+import * as Sentry from "@sentry/nextjs"
 import { compareCommits } from "@/lib/github"
 import { generateText } from "ai"
 import { gateway } from "@ai-sdk/gateway"
@@ -70,6 +71,10 @@ Keep it concise and technical. Focus on what matters to developers reviewing thi
 
     return NextResponse.json({ ...changelog, summary })
   } catch (error) {
+    Sentry.captureException(error, {
+      tags: { api: "changelog", repo },
+      extra: { from, to, owner, repoName },
+    })
     const message = error instanceof Error ? error.message : "Failed to generate changelog"
     return NextResponse.json({ error: message }, { status: 500 })
   }
