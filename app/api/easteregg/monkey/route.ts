@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
       tools: {
         image_generation: openai.tools.imageGeneration({
           outputFormat: "webp",
-          quality: "high",
+          quality: "low",
         }),
       },
     })
