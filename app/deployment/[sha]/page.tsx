@@ -27,16 +27,11 @@ export default function DeploymentPage({ params }: { params: Promise<{ sha: stri
 
   const { data, error, isLoading } = useSWR<MachConfigDeployment>(
     sha ? `/api/mach-config?repo=${encodeURIComponent(repo)}&sha=${sha}` : null,
-    fetcher
+    fetcher,
   )
 
   return (
-    <PageLayout
-      isLoading={isLoading}
-      initialMode="deployment"
-      initialSha={sha}
-      initialRepo={repo}
-    >
+    <PageLayout isLoading={isLoading} initialMode="deployment" initialSha={sha} initialRepo={repo}>
       {/* Divider */}
       <div className="border-t border-border mb-8" />
 

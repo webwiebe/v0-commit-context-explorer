@@ -9,18 +9,22 @@ Transform your request into a clear, actionable GitHub issue with proper structu
 ## STEP 1: UNDERSTAND THE REQUEST
 
 ### Initial Analysis
+
 Analyze the request: "{{args}}"
 
 **Key questions to answer:**
+
 - What problem is being solved or what feature is being added?
 - Who is the user/stakeholder affected?
 - What's the desired outcome?
 - Is this a bug, feature, enhancement, refactor, or something else?
 
 ### Check for Existing Issues
+
 ```bash
 gh issue list --search "{{args}}" --limit 10
 ```
+
 - Review existing issues to avoid duplicates
 - Check if this is related to or depends on other issues
 - Note any similar past issues (open or closed)
@@ -41,12 +45,14 @@ gh issue list --search "{{args}}" --limit 10
    ```bash
    git log --oneline --grep="{{args}}" -10
    ```
+
    - See if similar work was done recently
    - Check for related PRs or commits
 
 ## STEP 2: CLARIFY IF NEEDED
 
 **Ask the user for clarification if:**
+
 - The request is too vague or ambiguous
 - Multiple interpretations are possible
 - Missing critical information:
@@ -58,6 +64,7 @@ gh issue list --search "{{args}}" --limit 10
   - Are there any edge cases to consider upfront?
 
 **Present your understanding** and ask:
+
 - "I understand you want to [your interpretation]. Is that correct?"
 - "Should this also handle [edge case]?"
 - "Which site(s) should this affect?"
@@ -68,6 +75,7 @@ gh issue list --search "{{args}}" --limit 10
 ## STEP 3: STRUCTURE THE ISSUE
 
 ### Determine Issue Type
+
 - **Bug**: Something is broken or not working as expected
 - **Feature**: New functionality to be added
 - **Enhancement**: Improvement to existing functionality
@@ -78,6 +86,7 @@ gh issue list --search "{{args}}" --limit 10
 ### Draft Issue Content
 
 **Title Format**:
+
 - Bug: `[BUG] Clear description of what's broken`
 - Feature: `[FEATURE] What should be added`
 - Enhancement: `[ENHANCEMENT] What should be improved`
@@ -87,43 +96,55 @@ gh issue list --search "{{args}}" --limit 10
 
 ```markdown
 ## Description
+
 [Clear explanation of what needs to be done and why]
 
 ## Context
+
 [Why is this needed? What problem does it solve? Who benefits?]
 
 ## Acceptance Criteria
+
 - [ ] Specific, testable criteria 1
 - [ ] Specific, testable criteria 2
 - [ ] Specific, testable criteria 3
 
 ## Technical Considerations
+
 [Optional: technical details, affected areas, potential approaches]
 
 ## Related
+
 [Links to related issues, PRs, documentation]
 ```
 
 **For Bugs, also include**:
+
 ```markdown
 ## Current Behavior
+
 [What happens now]
 
 ## Expected Behavior
+
 [What should happen]
 
 ## Steps to Reproduce
+
 1. Step 1
 2. Step 2
 3. ...
 
 ## Environment
+
 - Site: [main/places/admin/etc.]
 - User role: [if relevant]
 ```
 
 ### Suggest Labels
+
 Based on issue type, suggest appropriate labels:
+
 - Type: `bug`, `feature`, `enhancement`, `refactor`, `docs`, `chore`
 - Priority: `priority-high`, `priority-medium`, `priority-low`
 - Scope: `frontend`, `backend`, `database`, `api`, `e2e`
@@ -132,6 +153,7 @@ Based on issue type, suggest appropriate labels:
 ## STEP 4: CREATE THE ISSUE
 
 ### Review with User
+
 Present the drafted issue content and suggested labels to the user:
 
 "I've drafted this issue. Does this capture what you need?"
@@ -141,7 +163,9 @@ Present the drafted issue content and suggested labels to the user:
 **Wait for user approval** before creating.
 
 ### Create Issue
+
 Once approved:
+
 ```bash
 gh issue create \
   --title "[TYPE] Title here" \
@@ -153,7 +177,9 @@ EOF
 ```
 
 ### Confirm Creation
+
 After creation:
+
 - Show the issue number and URL
 - Suggest next steps:
   - "Use `/issue <number>` to start working on this immediately"
@@ -162,6 +188,7 @@ After creation:
 ## BEST PRACTICES
 
 **Issue Quality**:
+
 - Be specific and actionable
 - Include "why" not just "what"
 - Define clear acceptance criteria
@@ -170,16 +197,19 @@ After creation:
 - Consider multi-site implications
 
 **Scope Management**:
+
 - One issue = one concern
 - If request is too large, suggest breaking into multiple issues
 - Note dependencies between issues
 
 **Searchability**:
+
 - Use clear, searchable titles
 - Include relevant keywords in description
 - Add appropriate labels
 
 **User-Centric**:
+
 - Focus on user value and outcomes
 - Include user perspective in description
 - Consider different user roles if applicable

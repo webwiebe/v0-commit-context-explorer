@@ -131,21 +131,12 @@ export function IntegrationCard({ integration, icon, docsUrl, envVars }: Integra
             disabled={testing || integration.status === "not_configured"}
             className="border-border hover:bg-secondary hover:border-cyan bg-transparent"
           >
-            {testing ? (
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-            ) : (
-              <RefreshCw className="h-4 w-4 mr-2" />
-            )}
+            {testing ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <RefreshCw className="h-4 w-4 mr-2" />}
             Test Connection
           </Button>
 
           {docsUrl && (
-            <Button
-              variant="ghost"
-              size="sm"
-              asChild
-              className="text-muted-foreground hover:text-foreground"
-            >
+            <Button variant="ghost" size="sm" asChild className="text-muted-foreground hover:text-foreground">
               <a href={docsUrl} target="_blank" rel="noopener noreferrer">
                 <ExternalLink className="h-4 w-4 mr-2" />
                 Docs

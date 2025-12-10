@@ -7,6 +7,7 @@
 Build a **Release Timeline Dashboard** with a cyberpunk/neon aesthetic. This is the foundation for a release intelligence platform.
 
 ### Tech Requirements
+
 - Next.js with App Router
 - TypeScript
 - Dark mode only - cyberpunk aesthetic (neon accents, dark backgrounds, glowing elements)
@@ -14,6 +15,7 @@ Build a **Release Timeline Dashboard** with a cyberpunk/neon aesthetic. This is 
 ### Single Integration: GitHub MCP
 
 Connect to GitHub to show:
+
 - Recent deployments from the `azure-mach-composer-deploy` workflow
 - Commits and PRs included in each deployment
 - Deployment status (queued/in_progress/success/failure)
@@ -27,7 +29,7 @@ interface Deployment {
   workflowRunId: number
   workflowRunUrl: string
   repository: string
-  status: 'queued' | 'in_progress' | 'success' | 'failure' | 'cancelled'
+  status: "queued" | "in_progress" | "success" | "failure" | "cancelled"
   environment: string
   triggeredBy: string
   startedAt: Date
@@ -42,7 +44,7 @@ interface Commit {
   message: string
   author: string
   timestamp: Date
-  ticketRefs: string[]  // Extracted PX-XXX patterns (ignore PX-0, PX-123)
+  ticketRefs: string[] // Extracted PX-XXX patterns (ignore PX-0, PX-123)
 }
 
 interface PullRequest {
@@ -64,11 +66,13 @@ interface PullRequest {
 ### Dashboard View
 
 **Header**:
+
 - App title with neon glow effect
 - Environment filter pills (all/dev/staging/prod)
 - Time range selector (24h/7d/30d)
 
 **Main Content - Deployment Timeline**:
+
 - Vertical timeline, newest at top
 - Each deployment card shows:
   - Repository name
@@ -79,6 +83,7 @@ interface PullRequest {
   - Click to expand or navigate to detail
 
 **Sidebar (optional)**:
+
 - Currently deploying (live, with pulse animation)
 - Quick stats: deployments today, success rate
 

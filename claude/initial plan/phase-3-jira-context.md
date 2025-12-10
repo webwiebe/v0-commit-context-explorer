@@ -11,6 +11,7 @@ Extend the dashboard to pull **Jira ticket context** and generate **AI-powered r
 ### Integration: Jira MCP
 
 Connect to Jira to:
+
 - Fetch ticket details for PX-XXX references found in commits/PRs
 - Get title, description, type for each ticket
 - Provide context for release notes generation
@@ -25,9 +26,7 @@ Connect to Jira to:
 function extractTicketRefs(text: string): string[] {
   const pattern = /PX-(\d+)/gi
   const matches = text.matchAll(pattern)
-  return [...matches]
-    .map(m => m[0].toUpperCase())
-    .filter(ref => ref !== 'PX-0' && ref !== 'PX-123')
+  return [...matches].map((m) => m[0].toUpperCase()).filter((ref) => ref !== "PX-0" && ref !== "PX-123")
 }
 ```
 
@@ -35,10 +34,10 @@ function extractTicketRefs(text: string): string[] {
 
 ```typescript
 interface JiraTicket {
-  key: string              // "PX-456"
+  key: string // "PX-456"
   title: string
-  description: string      // Plain text, truncated
-  type: 'bug' | 'feature' | 'task' | 'story' | 'epic'
+  description: string // Plain text, truncated
+  type: "bug" | "feature" | "task" | "story" | "epic"
   status: string
   priority: string
   url: string
@@ -46,10 +45,10 @@ interface JiraTicket {
 }
 
 interface ReleaseNotes {
-  summary: string          // AI-generated summary
-  features: string[]       // New features
-  fixes: string[]          // Bug fixes
-  other: string[]          // Other changes
+  summary: string // AI-generated summary
+  features: string[] // New features
+  fixes: string[] // Bug fixes
+  other: string[] // Other changes
   generatedAt: Date
 }
 ```
@@ -57,6 +56,7 @@ interface ReleaseNotes {
 ### UI Additions
 
 **On Deployment Detail - new "Context" section**:
+
 - List of linked Jira tickets with:
   - Type icon (bug/feature/task)
   - Ticket key (link to Jira)
@@ -65,6 +65,7 @@ interface ReleaseNotes {
 - Expandable description preview
 
 **On Deployment Detail - new "Release Notes" section**:
+
 - "Generate Release Notes" button
 - AI-generated summary
 - Categorized changes (Features / Fixes / Other)
@@ -72,6 +73,7 @@ interface ReleaseNotes {
 - Regenerate button
 
 **New page: `/releases/[id]/notes`** (optional):
+
 - Full-page release notes view
 - Print/export friendly
 - Shareable link
@@ -112,6 +114,7 @@ POST /api/deployments/[id]/generate-notes - Generate release notes
 ### Release Notes Generation
 
 Prompt structure for AI:
+
 ```
 Generate concise release notes for a deployment.
 

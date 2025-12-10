@@ -38,10 +38,8 @@ export default function ChangelogPage({ params }: { params: Promise<{ range: str
   const parsed = parseRange(range)
 
   const { data, error, isLoading } = useSWR<ChangelogContext>(
-    parsed
-      ? `/api/changelog?repo=${encodeURIComponent(repo)}&from=${parsed.from}&to=${parsed.to}`
-      : null,
-    fetcher
+    parsed ? `/api/changelog?repo=${encodeURIComponent(repo)}&from=${parsed.from}&to=${parsed.to}` : null,
+    fetcher,
   )
 
   // Invalid range format
