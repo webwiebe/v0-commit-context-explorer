@@ -139,3 +139,12 @@ export interface IntegrationCredentials {
     apiKey: string
   }
 }
+
+export interface RecentDeployment {
+  sha: string
+  shortSha: string
+  message: string
+  author: string
+  date: string
+  environments: string[]
+}
