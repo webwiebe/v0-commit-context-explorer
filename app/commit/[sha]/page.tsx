@@ -27,16 +27,11 @@ export default function CommitPage({ params }: { params: Promise<{ sha: string }
 
   const { data, error, isLoading } = useSWR<CommitContext>(
     sha ? `/api/commit/${sha}?repo=${encodeURIComponent(repo)}` : null,
-    fetcher
+    fetcher,
   )
 
   return (
-    <PageLayout
-      isLoading={isLoading}
-      initialMode="single"
-      initialSha={sha}
-      initialRepo={repo}
-    >
+    <PageLayout isLoading={isLoading} initialMode="single" initialSha={sha} initialRepo={repo}>
       {/* Divider */}
       <div className="border-t border-border mb-8" />
 

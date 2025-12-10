@@ -20,23 +20,20 @@ const fetcher = async (url: string): Promise<MachConfigDeployment> => {
   return res.json()
 }
 
-export default function DeploymentPage({ params }: { params: Promise<{ sha: string }> }) {
+import { Suspense } from "react"
+
+function DeploymentContent({ params }: { params: Promise<{ sha: string }> }) {
   const { sha } = use(params)
   const searchParams = useSearchParams()
   const repo = searchParams.get("repo") || DEFAULT_REPO
 
   const { data, error, isLoading } = useSWR<MachConfigDeployment>(
     sha ? `/api/mach-config?repo=${encodeURIComponent(repo)}&sha=${sha}` : null,
-    fetcher
+    fetcher,
   )
 
   return (
-    <PageLayout
-      isLoading={isLoading}
-      initialMode="deployment"
-      initialSha={sha}
-      initialRepo={repo}
-    >
+    <PageLayout isLoading={isLoading} initialMode="deployment" initialSha={sha} initialRepo={repo}>
       {/* Divider */}
       <div className="border-t border-border mb-8" />
 
@@ -64,7 +61,24 @@ export default function DeploymentPage({ params }: { params: Promise<{ sha: stri
       )}
 
       {/* Results */}
-      {data && !isLoading && <DeploymentDisplay deployment={data} />}
+      {data && !isLoading && <DeploymentDisplay deployment={data} repo={repo} />}
     </PageLayout>
+  )
+}
+
+export default function DeploymentPage({ params }: { params: Promise<{ sha: string }> }) {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center py-12">
+          <div className="flex items-center gap-3 text-muted-foreground">
+            <div className="h-5 w-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+            <span>Loading...</span>
+          </div>
+        </div>
+      }
+    >
+      <DeploymentContent params={params} />
+    </Suspense>
   )
 }

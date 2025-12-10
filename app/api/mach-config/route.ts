@@ -85,7 +85,6 @@ ${patchPreview}${file.patch && file.patch.length > 1000 ? "\n... (truncated)" : 
             try {
               const result = await generateText({
                 model: "anthropic/claude-sonnet-4-20250514",
-                maxTokens: 800,
                 prompt: `You are a senior software engineer reviewing code changes for the "${change.componentName}" component being deployed to ${change.environment}.
 
 COMMITS:
@@ -97,6 +96,7 @@ ${filesContext}
 Provide a concise deployment summary with:
 1. **What Changed**: 2-3 bullet points of key changes
 2. **Risk Assessment**: Low/Medium/High with brief justification
+2. **Business Impact**: Brief note on the impact of the changes on the business
 3. **Testing Notes**: What should be verified post-deployment
 
 Keep it brief and actionable for the deployment team.`,

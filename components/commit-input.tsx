@@ -2,11 +2,12 @@
 
 import type React from "react"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, forwardRef, useImperativeHandle, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Search, Settings, Plus, Trash2, GitCompare, GitCommit, Rocket, HeartPulse } from "lucide-react"
+import { RecentDeployments } from "./recent-deployments"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import {
   Dialog,
@@ -30,18 +31,26 @@ interface CommitInputProps {
   initialRelease?: string
 }
 
+export interface CommitInputRef {
+  focus: () => void
+  blur: () => void
+}
+
 const DEFAULT_REPO = "frasers-group/ec-fx-components"
 const STORAGE_KEY = "commit-explorer-repos"
 
-export function CommitInput({
-  isLoading,
-  initialMode = "changelog",
-  initialSha = "",
-  initialFromSha = "",
-  initialToSha = "",
-  initialRepo,
-  initialRelease = "",
-}: CommitInputProps) {
+export const CommitInput = forwardRef<CommitInputRef, CommitInputProps>(function CommitInput(
+  {
+    isLoading,
+    initialMode = "changelog",
+    initialSha = "",
+    initialFromSha = "",
+    initialToSha = "",
+    initialRepo,
+    initialRelease = "",
+  },
+  ref
+) {
   const router = useRouter()
   const [mode, setMode] = useState<SearchMode>(initialMode)
   const [sha, setSha] = useState(initialSha)
@@ -55,6 +64,33 @@ export function CommitInput({
   const [newRepo, setNewRepo] = useState("")
   const [editingIndex, setEditingIndex] = useState<number | null>(null)
   const [editValue, setEditValue] = useState("")
+
+  // Refs for input elements (focus/blur from keyboard shortcuts)
+  const shaInputRef = useRef<HTMLInputElement>(null)
+  const fromShaInputRef = useRef<HTMLInputElement>(null)
+  const deploymentShaInputRef = useRef<HTMLInputElement>(null)
+  const healthReleaseInputRef = useRef<HTMLInputElement>(null)
+
+  // Expose focus and blur methods to parent
+  useImperativeHandle(ref, () => ({
+    focus: () => {
+      if (mode === "single") {
+        shaInputRef.current?.focus()
+      } else if (mode === "changelog") {
+        fromShaInputRef.current?.focus()
+      } else if (mode === "deployment") {
+        deploymentShaInputRef.current?.focus()
+      } else {
+        healthReleaseInputRef.current?.focus()
+      }
+    },
+    blur: () => {
+      shaInputRef.current?.blur()
+      fromShaInputRef.current?.blur()
+      deploymentShaInputRef.current?.blur()
+      healthReleaseInputRef.current?.blur()
+    },
+  }))
 
   // Load repos from localStorage on mount
   useEffect(() => {
@@ -357,6 +393,7 @@ export function CommitInput({
         {mode === "single" ? (
           <div className="flex gap-3">
             <Input
+              ref={shaInputRef}
               type="text"
               placeholder="Commit SHA..."
               value={sha}
@@ -375,6 +412,7 @@ export function CommitInput({
         ) : mode === "changelog" ? (
           <div className="flex gap-3 items-center">
             <Input
+              ref={fromShaInputRef}
               type="text"
               placeholder="From SHA (older)..."
               value={fromSha}
@@ -399,26 +437,31 @@ export function CommitInput({
             </Button>
           </div>
         ) : mode === "deployment" ? (
-          <div className="flex gap-3">
-            <Input
-              type="text"
-              placeholder="Mach-config commit SHA..."
-              value={deploymentSha}
-              onChange={(e) => setDeploymentSha(e.target.value)}
-              className="flex-1 bg-secondary border-border font-mono text-sm placeholder:text-muted-foreground focus:border-cyan focus:ring-cyan"
-            />
-            <Button
-              type="submit"
-              disabled={isLoading || !isValid}
-              className="bg-primary text-primary-foreground hover:bg-primary/90 gap-2"
-            >
-              <Rocket className="h-4 w-4" />
-              {isLoading ? "Analyzing..." : "Analyze"}
-            </Button>
+          <div className="flex flex-col gap-3">
+            <div className="flex gap-3">
+              <Input
+                ref={deploymentShaInputRef}
+                type="text"
+                placeholder="Mach-config commit SHA..."
+                value={deploymentSha}
+                onChange={(e) => setDeploymentSha(e.target.value)}
+                className="flex-1 bg-secondary border-border font-mono text-sm placeholder:text-muted-foreground focus:border-cyan focus:ring-cyan"
+              />
+              <Button
+                type="submit"
+                disabled={isLoading || !isValid}
+                className="bg-primary text-primary-foreground hover:bg-primary/90 gap-2"
+              >
+                <Rocket className="h-4 w-4" />
+                {isLoading ? "Analyzing..." : "Analyze"}
+              </Button>
+            </div>
+            <RecentDeployments repo={repo} />
           </div>
         ) : (
           <div className="flex gap-3">
             <Input
+              ref={healthReleaseInputRef}
               type="text"
               placeholder="Release version or commit SHA..."
               value={healthRelease}
@@ -438,4 +481,4 @@ export function CommitInput({
       </div>
     </form>
   )
-}
+})

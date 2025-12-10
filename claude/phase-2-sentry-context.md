@@ -10,7 +10,7 @@ Extend the Commit Context Explorer to show **Sentry error context** for the comm
 
 ### Additional Section in UI
 
-```
+\`\`\`
 ┌─────────────────────────────────────────────────┐
 │  ...existing commit/PR/deployment sections...   │
 │                                                 │
@@ -41,7 +41,7 @@ Extend the Commit Context Explorer to show **Sentry error context** for the comm
 │  └─────────────────────────────────────────┘   │
 │                                                 │
 └─────────────────────────────────────────────────┘
-```
+\`\`\`
 
 ### What to Fetch (Sentry MCP)
 
@@ -61,14 +61,14 @@ Given commit context:
 
 ### Extended Data Model
 
-```typescript
+\`\`\`typescript
 interface CommitContext {
   // ...existing fields...
   errorImpact: ErrorImpact | null
 }
 
 interface ErrorImpact {
-  status: 'clean' | 'issues_found' | 'unknown'
+  status: "clean" | "issues_found" | "unknown"
   newIssues: SentryIssue[]
   fileErrors: FileErrorLink[]
 }
@@ -77,11 +77,11 @@ interface SentryIssue {
   id: string
   shortId: string
   title: string
-  culprit: string        // file:line
+  culprit: string // file:line
   count: number
   userCount: number
   firstSeen: Date
-  level: 'error' | 'warning'
+  level: "error" | "warning"
   url: string
 }
 
@@ -89,29 +89,25 @@ interface FileErrorLink {
   filePath: string
   errors: SentryIssue[]
 }
-```
+\`\`\`
 
 ### MCP Integration
 
 Add `/lib/mcp/sentry.ts`:
 
-```typescript
+\`\`\`typescript
 // Sentry MCP tools to use:
 // - search_errors: Find errors in specific files
 // - get_issues: Get issues by project/time range
 // - seer_analysis: AI root cause analysis
 
-export async function getErrorContext(
-  project: string,
-  files: string[],
-  since: Date
-): Promise<ErrorImpact> {
+export async function getErrorContext(project: string, files: string[], since: Date): Promise<ErrorImpact> {
   // 1. Search for errors in changed files
   // 2. Get new issues since deployment
   // 3. Link errors to files
   // Return error impact
 }
-```
+\`\`\`
 
 ### New UI Components
 

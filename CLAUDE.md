@@ -30,8 +30,9 @@ app/
     ├── commit/[sha]/route.ts   # Single commit context
     ├── changelog/route.ts      # Compare commits, AI summaries
     ├── mach-config/route.ts    # Deployment analysis
-    └── sentry/
-        └── release-health/route.ts  # Sentry release health metrics
+    ├── sentry/
+    │   └── release-health/route.ts  # Sentry release health metrics
+    └── easteregg/monkey/route.ts # Monkey engineer image generation
 
 components/
 ├── commit-input.tsx            # Input form with repo selector
@@ -42,6 +43,7 @@ components/
 ├── sparkline-chart.tsx         # SVG sparkline chart component
 ├── status-badge.tsx            # Deployment status indicators
 ├── ticket-badge.tsx            # Jira ticket references (PX-XXX)
+├── author-hover.tsx            # Easter egg: monkey image on author hover
 └── ui/                         # shadcn/ui primitives
 
 lib/
@@ -59,29 +61,39 @@ SENTRY_AUTH_TOKEN=   # Required for Sentry release health integration
 SENTRY_ORG=          # Sentry organization slug (default: frasers-group)
 ```
 
-The Vercel AI integration uses the Vercel AI Gateway (configured automatically on Vercel).
+The Vercel AI integration uses the Vercel AI Gateway (configured automatically on Vercel) for both text generation (Claude) and image generation (Gemini Flash).
 
 ## API Routes
 
 ### GET `/api/commit/[sha]`
+
 Fetches single commit context including PR info and deployment status.
 
 **Query params**: `repo` (default: `FrasersGroup/website`)
 
 ### GET `/api/changelog`
+
 Compares two commits and generates AI-powered changelog summary.
 
 **Query params**: `from`, `to`, `repo`
 
 ### GET `/api/mach-config`
+
 Analyzes deployment commits to `mach-config/` directory, parses version changes, and generates risk assessments.
 
 **Query params**: `sha`, `repo`
 
 ### GET `/api/sentry/release-health`
+
 Fetches Sentry release health metrics including crash-free rates, sessions, and 24h time series.
 
 **Query params**: `release` or `sha`, `project` (optional), `environment` (default: production)
+
+### GET `/api/easteregg/monkey`
+
+Generates AI-powered humorous monkey engineer images using Google Gemini Flash via Vercel AI Gateway.
+
+**Query params**: `username`
 
 ## GitHub Integration
 
@@ -146,15 +158,19 @@ interface ReleaseHealthMetrics {
 ## Roadmap
 
 ### Phase 1 (Complete)
+
 GitHub integration with commit context, changelogs, and deployment analysis
 
 ### Phase 2 (Complete)
+
 Sentry integration - release health dashboard with crash-free rates, adoption, and 24h time series
 
 ### Phase 3 (Planned)
+
 Jira integration - enrich ticket references with status, assignee, description
 
 ### Phase 4 (Planned)
+
 Honeycomb integration - link deployments to observability metrics
 
 ## Conventions

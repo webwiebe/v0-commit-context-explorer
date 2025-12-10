@@ -13,12 +13,12 @@ Input a commit SHA → fetch real context via MCP → display it.
 
 ## Phased Approach
 
-| Phase | Focus | Adds |
-|-------|-------|------|
-| **1** | Commit Context | GitHub MCP |
-| **2** | Error Impact | + Sentry MCP |
-| **3** | Ticket Details | + Jira MCP |
-| **4** | Performance | + Honeycomb MCP |
+| Phase | Focus          | Adds            |
+| ----- | -------------- | --------------- |
+| **1** | Commit Context | GitHub MCP      |
+| **2** | Error Impact   | + Sentry MCP    |
+| **3** | Ticket Details | + Jira MCP      |
+| **4** | Performance    | + Honeycomb MCP |
 
 ## Start Here
 
@@ -42,16 +42,17 @@ Input a commit SHA → fetch real context via MCP → display it.
 **GitHub Workflow**: `azure-mach-composer-deploy.yml`
 
 **Honeycomb Datasets**:
+
 - `apollo-gateway` (fx-production)
 - `ecommerce-bff` (fx-production)
 
 ## Cyberpunk Theme
 
-```
+\`\`\`
 Background:  #0a0a0f
 Cyan:        #00fff5
 Magenta:     #ff00ff
 Green:       #00ff00
 Orange:      #ff9500
 Red:         #ff0040
-```
+\`\`\`

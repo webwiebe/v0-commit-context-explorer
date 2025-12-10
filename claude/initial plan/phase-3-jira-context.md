@@ -11,13 +11,14 @@ Extend the dashboard to pull **Jira ticket context** and generate **AI-powered r
 ### Integration: Jira MCP
 
 Connect to Jira to:
+
 - Fetch ticket details for PX-XXX references found in commits/PRs
 - Get title, description, type for each ticket
 - Provide context for release notes generation
 
 ### Ticket Extraction Logic
 
-```typescript
+\`\`\`typescript
 // Extract from commit messages and PR titles
 // Pattern: PX-\d+ (case insensitive)
 // Ignore: PX-0, PX-123 (dummy values)
@@ -25,20 +26,18 @@ Connect to Jira to:
 function extractTicketRefs(text: string): string[] {
   const pattern = /PX-(\d+)/gi
   const matches = text.matchAll(pattern)
-  return [...matches]
-    .map(m => m[0].toUpperCase())
-    .filter(ref => ref !== 'PX-0' && ref !== 'PX-123')
+  return [...matches].map((m) => m[0].toUpperCase()).filter((ref) => ref !== "PX-0" && ref !== "PX-123")
 }
-```
+\`\`\`
 
 ### Extended Data Model
 
-```typescript
+\`\`\`typescript
 interface JiraTicket {
-  key: string              // "PX-456"
+  key: string // "PX-456"
   title: string
-  description: string      // Plain text, truncated
-  type: 'bug' | 'feature' | 'task' | 'story' | 'epic'
+  description: string // Plain text, truncated
+  type: "bug" | "feature" | "task" | "story" | "epic"
   status: string
   priority: string
   url: string
@@ -46,17 +45,18 @@ interface JiraTicket {
 }
 
 interface ReleaseNotes {
-  summary: string          // AI-generated summary
-  features: string[]       // New features
-  fixes: string[]          // Bug fixes
-  other: string[]          // Other changes
+  summary: string // AI-generated summary
+  features: string[] // New features
+  fixes: string[] // Bug fixes
+  other: string[] // Other changes
   generatedAt: Date
 }
-```
+\`\`\`
 
 ### UI Additions
 
 **On Deployment Detail - new "Context" section**:
+
 - List of linked Jira tickets with:
   - Type icon (bug/feature/task)
   - Ticket key (link to Jira)
@@ -65,6 +65,7 @@ interface ReleaseNotes {
 - Expandable description preview
 
 **On Deployment Detail - new "Release Notes" section**:
+
 - "Generate Release Notes" button
 - AI-generated summary
 - Categorized changes (Features / Fixes / Other)
@@ -72,6 +73,7 @@ interface ReleaseNotes {
 - Regenerate button
 
 **New page: `/releases/[id]/notes`** (optional):
+
 - Full-page release notes view
 - Print/export friendly
 - Shareable link
@@ -88,7 +90,7 @@ interface ReleaseNotes {
 
 Create `/lib/mcp/jira.ts`:
 
-```typescript
+\`\`\`typescript
 // Jira MCP client stub
 // Actual MCP tools:
 // - get_issue
@@ -99,20 +101,21 @@ export interface JiraMCPClient {
   searchIssues(jql: string): Promise<JiraTicket[]>
   batchGetIssues(keys: string[]): Promise<JiraTicket[]>
 }
-```
+\`\`\`
 
 ### API Routes (new)
 
-```
+\`\`\`
 GET  /api/tickets/[key]                  - Single ticket details
 POST /api/tickets/batch                  - Batch fetch tickets
 POST /api/deployments/[id]/generate-notes - Generate release notes
-```
+\`\`\`
 
 ### Release Notes Generation
 
 Prompt structure for AI:
-```
+
+\`\`\`
 Generate concise release notes for a deployment.
 
 Commits:
@@ -132,7 +135,7 @@ Format as:
 - Features (new functionality)
 - Fixes (bug fixes)
 - Other (refactoring, dependencies, etc.)
-```
+\`\`\`
 
 ### Success Criteria
 

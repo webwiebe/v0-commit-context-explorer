@@ -3,6 +3,7 @@
 import type { MachConfigDeployment } from "@/lib/types"
 import { ContextCard } from "./context-card"
 import { TicketBadge } from "./ticket-badge"
+import { AuthorHover } from "./author-hover"
 import {
   Rocket,
   GitCommit,
@@ -22,9 +23,11 @@ import { formatDistanceToNow } from "date-fns"
 import ReactMarkdown from "react-markdown"
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
+import { ReleaseNotesSection } from "@/components/release-notes-section"
 
 interface DeploymentDisplayProps {
   deployment: MachConfigDeployment
+  repo: string
 }
 
 function RiskBadge({ text }: { text: string }) {
@@ -53,7 +56,7 @@ function RiskBadge({ text }: { text: string }) {
   )
 }
 
-export function DeploymentDisplay({ deployment }: DeploymentDisplayProps) {
+export function DeploymentDisplay({ deployment, repo }: DeploymentDisplayProps) {
   const { commitSha, commitMessage, author, date, components } = deployment
   const [expandedComponents, setExpandedComponents] = useState<Set<string>>(
     new Set(components.map((c) => c.componentName)),
@@ -86,7 +89,7 @@ export function DeploymentDisplay({ deployment }: DeploymentDisplayProps) {
                 <span className="font-mono text-primary">{commitSha}</span>
                 <span className="flex items-center gap-1">
                   <User className="h-3 w-3" />
-                  {author}
+                  <AuthorHover username={author}>{author}</AuthorHover>
                 </span>
                 <span className="flex items-center gap-1">
                   <Clock className="h-3 w-3" />
@@ -305,7 +308,7 @@ export function DeploymentDisplay({ deployment }: DeploymentDisplayProps) {
                               </a>
                             </div>
                             <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
-                              <span>{commit.author}</span>
+                              <AuthorHover username={commit.author}>{commit.author}</AuthorHover>
                               <span>·</span>
                               <span>{formatDistanceToNow(new Date(commit.date), { addSuffix: true })}</span>
                             </div>
@@ -320,6 +323,17 @@ export function DeploymentDisplay({ deployment }: DeploymentDisplayProps) {
                     </div>
                   </div>
                 )}
+
+                <div className="pt-2 border-t border-border">
+                  <ReleaseNotesSection
+                    repo={repo}
+                    headRef={component.toVersion}
+                    baseRef={component.fromVersion}
+                    componentPath={component.componentPath}
+                    environment={component.environment}
+                    tickets={changelog.allTickets}
+                  />
+                </div>
               </div>
             )}
           </div>
