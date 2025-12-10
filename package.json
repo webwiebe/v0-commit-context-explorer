@@ -48,6 +48,7 @@
     "@radix-ui/react-toggle-group": "latest",
     "@radix-ui/react-tooltip": "latest",
     "@remix-run/react": "latest",
+    "@sentry/nextjs": "latest",
     "@tanstack/react-router": "latest",
     "@vercel/analytics": "latest",
     "@vitest/browser-playwright": "latest",

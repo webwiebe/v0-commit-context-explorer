@@ -339,7 +339,7 @@ ${commitData.files?.map((f: any) => `- ${f.status}: ${f.filename} (+${f.addition
 
     const [businessResult, developerResult, devopsResult] = await Promise.all([
       generateText({
-        model: "anthropic/claude-sonnet-4-20250514",
+        model: "anthropic/claude-sonnet-4.5",
         system: `You are a product communications specialist writing release notes for Product Owners and business stakeholders.
 
 Your output MUST follow this exact structure:
@@ -375,7 +375,7 @@ Rules:
       }),
 
       generateText({
-        model: "anthropic/claude-sonnet-4-20250514",
+        model: "anthropic/claude-sonnet-4.5",
         system: `You are a senior developer writing technical release notes for the engineering team.
 
 Your output MUST follow this exact structure:
@@ -406,7 +406,6 @@ Rules:
         prompt: `Generate developer-focused technical release notes with per-commit breakdown:\n${contextForAI}\n${developerCommitContext}`,
         // maxTokens: 1500,
       }),
-
       generateDevOpsSummary(commitData),
     ])
 

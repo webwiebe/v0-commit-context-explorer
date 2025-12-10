@@ -1,4 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
+import * as Sentry from "@sentry/nextjs"
 import { fetchCommitContext } from "@/lib/github"
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ sha: string }> }) {
@@ -20,6 +21,10 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     const context = await fetchCommitContext(owner, repo, sha)
     return NextResponse.json(context)
   } catch (error) {
+    Sentry.captureException(error, {
+      tags: { api: "commit", repo: repoParam },
+      extra: { sha, owner, repo },
+    })
     const message = error instanceof Error ? error.message : "Failed to fetch commit"
     return NextResponse.json({ error: message }, { status: 500 })
   }

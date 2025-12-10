@@ -1,4 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
+import * as Sentry from "@sentry/nextjs"
 import type { RecentDeployment } from "@/lib/types"
 
 const GITHUB_API = "https://api.github.com"
@@ -86,6 +87,10 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ deployments })
   } catch (error) {
+    Sentry.captureException(error, {
+      tags: { api: "mach-config-recent", repo },
+      extra: { owner, repoName },
+    })
     const message = error instanceof Error ? error.message : "Failed to fetch recent deployments"
     return NextResponse.json({ error: message }, { status: 500 })
   }
