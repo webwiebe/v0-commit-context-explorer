@@ -78,7 +78,7 @@ export async function GET(request: NextRequest) {
         message: commit.commit.message.split("\n")[0],
         author: commit.author?.login || commit.commit.author.name,
         date: commit.commit.author.date,
-        environments: [...new Set(environments)],
+        environments: [...new Set<string>(environments)],
       })
     }
 
