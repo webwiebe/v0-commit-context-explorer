@@ -4,7 +4,7 @@
     "env": {},
     "webpack": null,
     "typescript": {
-      "ignoreBuildErrors": true
+      "ignoreBuildErrors": false
     },
     "typedRoutes": false,
     "distDir": ".next",
@@ -293,8 +293,8 @@
     },
     "distDirRoot": ".next"
   },
-  "appDir": "/Users/wiebe/projects/frasers/hackathon/worktrees/12-settings-ui",
-  "relativeAppDir": "projects/frasers/hackathon/worktrees/12-settings-ui",
+  "appDir": "/Users/wiebe/projects/frasers/hackathon/worktrees/24-26-build-improvements",
+  "relativeAppDir": "projects/frasers/hackathon/worktrees/24-26-build-improvements",
   "files": [
     ".next/routes-manifest.json",
     ".next/server/pages-manifest.json",

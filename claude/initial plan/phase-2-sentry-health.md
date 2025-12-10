@@ -11,6 +11,7 @@ Extend the Release Timeline Dashboard to show **error health** from Sentry for e
 ### Integration: Sentry MCP
 
 Connect to Sentry to show:
+
 - New issues introduced after a deployment
 - Error rate change (before vs after)
 - Top errors associated with a release
@@ -30,36 +31,38 @@ Connect to Sentry to show:
 
 ```typescript
 interface DeploymentHealth {
-  status: 'healthy' | 'degraded' | 'critical'
-  errorsBefore: number      // Count in 1hr before deploy
-  errorsAfter: number       // Count in 1hr after deploy
-  errorDelta: number        // Percentage change
-  newIssues: SentryIssue[]  // Issues first seen after this deploy
+  status: "healthy" | "degraded" | "critical"
+  errorsBefore: number // Count in 1hr before deploy
+  errorsAfter: number // Count in 1hr after deploy
+  errorDelta: number // Percentage change
+  newIssues: SentryIssue[] // Issues first seen after this deploy
 }
 
 interface SentryIssue {
   id: string
-  shortId: string           // e.g., "PROJECT-ABC"
+  shortId: string // e.g., "PROJECT-ABC"
   title: string
-  culprit: string           // File/function
+  culprit: string // File/function
   count: number
   userCount: number
   firstSeen: Date
   lastSeen: Date
-  level: 'error' | 'warning' | 'info'
-  url: string               // Link to Sentry
-  seerAnalysis?: string     // AI root cause if available
+  level: "error" | "warning" | "info"
+  url: string // Link to Sentry
+  seerAnalysis?: string // AI root cause if available
 }
 ```
 
 ### UI Additions
 
 **On DeploymentCard (timeline)**:
+
 - Health indicator dot (green/amber/red) in corner
 - Error count badge if > 0 new issues
 - Subtle red glow on card border if critical
 
 **On Deployment Detail page - new "Health" section**:
+
 - Error rate comparison (before/after with visual bar)
 - New issues list with:
   - Issue title
@@ -70,6 +73,7 @@ interface SentryIssue {
 - Overall health status banner
 
 **New Dashboard Widget**:
+
 - "Needs Attention" section showing deployments with degraded/critical health
 - Sorted by severity
 

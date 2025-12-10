@@ -48,9 +48,7 @@ const GIT_CHARS = [
 ]
 
 function generateRandomSha(): string {
-  return Array.from({ length: 7 }, () =>
-    Math.floor(Math.random() * 16).toString(16)
-  ).join("")
+  return Array.from({ length: 7 }, () => Math.floor(Math.random() * 16).toString(16)).join("")
 }
 
 function generateColumnChars(): string[] {
@@ -64,11 +62,7 @@ function generateColumnChars(): string[] {
   })
 }
 
-export function KonamiEffect({
-  isActive,
-  onComplete,
-  duration = 5000,
-}: KonamiEffectProps) {
+export function KonamiEffect({ isActive, onComplete, duration = 5000 }: KonamiEffectProps) {
   const [isVisible, setIsVisible] = useState(false)
   const [isFading, setIsFading] = useState(false)
 
@@ -114,7 +108,7 @@ export function KonamiEffect({
       className={cn(
         "fixed inset-0 z-50 overflow-hidden pointer-events-none",
         "transition-opacity duration-500",
-        isFading ? "opacity-0" : "opacity-100"
+        isFading ? "opacity-0" : "opacity-100",
       )}
       aria-hidden="true"
     >
@@ -142,13 +136,9 @@ export function KonamiEffect({
                 className={cn(
                   "font-mono text-sm whitespace-nowrap",
                   charIndex === 0 ? "text-white" : "text-primary",
-                  charIndex > 0 &&
-                    charIndex < 3 &&
-                    "opacity-90",
-                  charIndex >= 3 &&
-                    charIndex < 6 &&
-                    "opacity-70",
-                  charIndex >= 6 && "opacity-40"
+                  charIndex > 0 && charIndex < 3 && "opacity-90",
+                  charIndex >= 3 && charIndex < 6 && "opacity-70",
+                  charIndex >= 6 && "opacity-40",
                 )}
               >
                 {char}
@@ -161,12 +151,8 @@ export function KonamiEffect({
       {/* Center message */}
       <div className="absolute inset-0 flex items-center justify-center">
         <div className="text-center konami-message">
-          <div className="text-4xl font-bold text-primary mb-2 font-mono tracking-wider">
-            KONAMI CODE ACTIVATED
-          </div>
-          <div className="text-lg text-primary/70 font-mono">
-            ↑↑↓↓←→←→BA
-          </div>
+          <div className="text-4xl font-bold text-primary mb-2 font-mono tracking-wider">KONAMI CODE ACTIVATED</div>
+          <div className="text-lg text-primary/70 font-mono">↑↑↓↓←→←→BA</div>
         </div>
       </div>
     </div>

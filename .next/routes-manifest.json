@@ -27,6 +27,30 @@
         "nxtPsha": "nxtPsha"
       },
       "namedRegex": "^/api/commit/(?<nxtPsha>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/changelog/[range]",
+      "regex": "^/changelog/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPrange": "nxtPrange"
+      },
+      "namedRegex": "^/changelog/(?<nxtPrange>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/commit/[sha]",
+      "regex": "^/commit/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPsha": "nxtPsha"
+      },
+      "namedRegex": "^/commit/(?<nxtPsha>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/deployment/[sha]",
+      "regex": "^/deployment/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPsha": "nxtPsha"
+      },
+      "namedRegex": "^/deployment/(?<nxtPsha>[^/]+?)(?:/)?$"
     }
   ],
   "staticRoutes": [

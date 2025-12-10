@@ -6,6 +6,9 @@
   "/api/mach-config/route": "app/api/mach-config/route.js",
   "/api/settings/route": "app/api/settings/route.js",
   "/api/settings/test/route": "app/api/settings/test/route.js",
+  "/changelog/[range]/page": "app/changelog/[range]/page.js",
+  "/commit/[sha]/page": "app/commit/[sha]/page.js",
+  "/deployment/[sha]/page": "app/deployment/[sha]/page.js",
   "/page": "app/page.js",
   "/settings/page": "app/settings/page.js"
 }

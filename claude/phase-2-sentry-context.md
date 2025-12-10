@@ -68,7 +68,7 @@ interface CommitContext {
 }
 
 interface ErrorImpact {
-  status: 'clean' | 'issues_found' | 'unknown'
+  status: "clean" | "issues_found" | "unknown"
   newIssues: SentryIssue[]
   fileErrors: FileErrorLink[]
 }
@@ -77,11 +77,11 @@ interface SentryIssue {
   id: string
   shortId: string
   title: string
-  culprit: string        // file:line
+  culprit: string // file:line
   count: number
   userCount: number
   firstSeen: Date
-  level: 'error' | 'warning'
+  level: "error" | "warning"
   url: string
 }
 
@@ -101,11 +101,7 @@ Add `/lib/mcp/sentry.ts`:
 // - get_issues: Get issues by project/time range
 // - seer_analysis: AI root cause analysis
 
-export async function getErrorContext(
-  project: string,
-  files: string[],
-  since: Date
-): Promise<ErrorImpact> {
+export async function getErrorContext(project: string, files: string[], since: Date): Promise<ErrorImpact> {
   // 1. Search for errors in changed files
   // 2. Get new issues since deployment
   // 3. Link errors to files

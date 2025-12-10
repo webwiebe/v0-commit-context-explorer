@@ -6,6 +6,9 @@
   "/api/mach-config/route": "/api/mach-config",
   "/api/settings/route": "/api/settings",
   "/api/settings/test/route": "/api/settings/test",
+  "/changelog/[range]/page": "/changelog/[range]",
+  "/commit/[sha]/page": "/commit/[sha]",
+  "/deployment/[sha]/page": "/deployment/[sha]",
   "/page": "/",
   "/settings/page": "/settings"
 }

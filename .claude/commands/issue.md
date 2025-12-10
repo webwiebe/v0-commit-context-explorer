@@ -9,6 +9,7 @@ Work independently on this issue following a senior developer workflow: thorough
 ## PHASE 1: PLAN
 
 ### Research & Context
+
 1. **Fetch issue**: `gh issue view {{args}} --json title,body,labels,comments,assignees,milestone`
    - Read all comments for context and discussion history
    - Check for linked issues/PRs
@@ -41,7 +42,9 @@ Work independently on this issue following a senior developer workflow: thorough
    - API contract changes, performance impact, race conditions
 
 ### Break Down Work
+
 **Use TodoWrite** to create granular tasks (<30min each), ordered by dependencies:
+
 - Database schema updates → client generation
 - API endpoints → client generation
 - Frontend components
@@ -49,6 +52,7 @@ Work independently on this issue following a senior developer workflow: thorough
 - Linting/build/manual verification
 
 ### Design Decisions (keep in scratchpad)
+
 - Architectural pattern (follow existing, don't invent)
 - Error handling strategy (all layers: frontend/API/database)
 - Validation approach (each layer)
@@ -58,6 +62,7 @@ Work independently on this issue following a senior developer workflow: thorough
 - Database indices needed
 
 ### Testing Strategy
+
 - Unit tests: which logic, which edge cases
 - E2E tests: which user workflows
 - Manual testing: what scenarios
@@ -67,6 +72,7 @@ Work independently on this issue following a senior developer workflow: thorough
 ## PHASE 2: CREATE
 
 ### Development Principles
+
 - **Follow existing patterns** (don't invent)
 - **Minimal scope** (resist scope creep)
 - **Type safety** (strict TypeScript, no `any`)
@@ -78,6 +84,7 @@ Work independently on this issue following a senior developer workflow: thorough
 ### Implementation Order (Backend → Frontend)
 
 **Use Makefile commands, not one-offs:**
+
 - If a command isn't in the Makefile but should be reusable, add it
 - Check `make help` for available commands
 - Don't write manual commands that require special permissions
@@ -112,6 +119,7 @@ Work independently on this issue following a senior developer workflow: thorough
    - Test happy paths AND error conditions
 
 ### Quality Checks (frequent, not batch)
+
 - `pnpm lint` (fix immediately)
 - `pnpm build` (ensure TS compiles)
 - Review your own code critically
@@ -120,6 +128,7 @@ Work independently on this issue following a senior developer workflow: thorough
 ## PHASE 3: TEST
 
 ### Automated Tests (ALL MUST PASS)
+
 1. **Lint**: `pnpm lint` (fix all errors, don't disable rules)
 2. **Build**: `pnpm build` (no TypeScript errors)
 3. **Unit Tests**: `pnpm test` (existing + new tests pass)
@@ -128,6 +137,7 @@ Work independently on this issue following a senior developer workflow: thorough
    - Verify multi-tenant isolation
 
 ### Manual Verification (test like a user)
+
 - `pnpm dev` to start services
 - Test happy path with realistic data
 - Test edge cases: empty states, validation errors, permissions
@@ -138,6 +148,7 @@ Work independently on this issue following a senior developer workflow: thorough
 - Verify database state, API responses, logging
 
 ### If ANY Test Fails
+
 - **STOP** - do not proceed
 - Investigate root cause
 - Fix completely
@@ -147,6 +158,7 @@ Work independently on this issue following a senior developer workflow: thorough
 ## PHASE 4: DEPLOY (PR ONLY)
 
 ### Pre-Deployment Checklist
+
 - [ ] All tests passing (lint, build, unit, E2E)
 - [ ] Manual verification complete
 - [ ] No console errors or warnings
@@ -155,16 +167,19 @@ Work independently on this issue following a senior developer workflow: thorough
 - [ ] No commented code or debug statements
 
 ### Create Branch & Commits
+
 ```bash
 git checkout -b issue-{{args}}/short-description
 ```
 
 **Commit format**: `feat: description` or `fix: description`
+
 - Atomic commits (one logical change each)
 - Clear, descriptive messages
 - Reference issue in body if helpful
 
 ### Push & Create PR
+
 ```bash
 git push -u origin issue-{{args}}/short-description
 
@@ -189,30 +204,37 @@ EOF
 ```
 
 ### Monitor CI/CD
+
 ```bash
 gh pr checks --watch
 ```
+
 - All CI checks must pass
 - If checks fail, fix immediately and push updates
 - Don't merge until all green
 
 ### CRITICAL: DEPLOYMENT PROCESS
+
 **DO NOT MERGE THE PR OR PUSH TO MAIN**
 
 The deployment pipeline works as follows:
+
 1. **PR created** → Automatically deploys to **test environment** (Docker)
 2. **PR merged to main** → Automatically deploys to **production**
 
 **Your job ends at PR creation.** The user will:
+
 - Review the PR
 - Merge when ready (triggering prod deployment)
 
 **NEVER:**
+
 - Merge the PR yourself
 - Push directly to main
 - Use `git push origin main` or similar commands
 
 ### Post-PR Actions
+
 - Comment on issue #{{args}} summarizing what was done
 - If breaking changes, document clearly in PR
 - If follow-up needed, create new issues
@@ -229,6 +251,7 @@ The deployment pipeline works as follows:
 ## WHEN TO ASK USER
 
 Don't assume - ask if:
+
 - Requirements ambiguous/contradictory
 - Multiple approaches with tradeoffs
 - Breaking changes unavoidable

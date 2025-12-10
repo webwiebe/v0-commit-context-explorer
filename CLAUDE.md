@@ -59,16 +59,19 @@ The Vercel AI integration uses the Vercel AI Gateway (configured automatically o
 ## API Routes
 
 ### GET `/api/commit/[sha]`
+
 Fetches single commit context including PR info and deployment status.
 
 **Query params**: `repo` (default: `FrasersGroup/website`)
 
 ### GET `/api/changelog`
+
 Compares two commits and generates AI-powered changelog summary.
 
 **Query params**: `from`, `to`, `repo`
 
 ### GET `/api/mach-config`
+
 Analyzes deployment commits to `mach-config/` directory, parses version changes, and generates risk assessments.
 
 **Query params**: `sha`, `repo`
@@ -120,15 +123,19 @@ interface MachConfigDeployment {
 ## Roadmap
 
 ### Phase 1 (Current)
+
 GitHub integration with commit context, changelogs, and deployment analysis
 
 ### Phase 2 (Planned)
+
 Sentry integration - correlate commits with error impact
 
 ### Phase 3 (Planned)
+
 Jira integration - enrich ticket references with status, assignee, description
 
 ### Phase 4 (Planned)
+
 Honeycomb integration - link deployments to observability metrics
 
 ## Conventions

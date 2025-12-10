@@ -11,10 +11,12 @@ Extend the dashboard with **deep observability** from Honeycomb - latency metric
 ### Integration: Honeycomb MCP
 
 Primary datasets:
+
 - `apollo-gateway` (fx-production)
 - `ecommerce-bff` (fx-production)
 
 Connect to Honeycomb to show:
+
 - Latency percentiles (P50, P95, P99) before/after deployment
 - SLO status and budget remaining
 - Trace links for slow requests or errors
@@ -38,53 +40,55 @@ Connect to Honeycomb to show:
 interface PerformanceHealth {
   datasets: DatasetMetrics[]
   slos: SLOStatus[]
-  overallStatus: 'healthy' | 'degraded' | 'critical'
+  overallStatus: "healthy" | "degraded" | "critical"
 }
 
 interface DatasetMetrics {
-  name: string                    // "apollo-gateway" | "ecommerce-bff"
-  environment: string             // "fx-production"
-  before: LatencyMetrics          // 1hr before deploy
-  after: LatencyMetrics           // 1hr after deploy
+  name: string // "apollo-gateway" | "ecommerce-bff"
+  environment: string // "fx-production"
+  before: LatencyMetrics // 1hr before deploy
+  after: LatencyMetrics // 1hr after deploy
   delta: LatencyDelta
 }
 
 interface LatencyMetrics {
-  p50: number                     // milliseconds
+  p50: number // milliseconds
   p95: number
   p99: number
-  errorRate: number               // percentage
-  throughput: number              // requests/minute
+  errorRate: number // percentage
+  throughput: number // requests/minute
 }
 
 interface LatencyDelta {
-  p50Change: number               // percentage
+  p50Change: number // percentage
   p95Change: number
   p99Change: number
   errorRateChange: number
-  status: 'improved' | 'stable' | 'degraded'
+  status: "improved" | "stable" | "degraded"
 }
 
 interface SLOStatus {
   id: string
   name: string
   dataset: string
-  target: number                  // e.g., 99.9
-  current: number                 // e.g., 99.7
-  budgetRemaining: number         // percentage of error budget left
-  budgetConsumed24h: number       // how much burned in last 24h
-  status: 'met' | 'at_risk' | 'breached'
-  url: string                     // Link to Honeycomb SLO page
+  target: number // e.g., 99.9
+  current: number // e.g., 99.7
+  budgetRemaining: number // percentage of error budget left
+  budgetConsumed24h: number // how much burned in last 24h
+  status: "met" | "at_risk" | "breached"
+  url: string // Link to Honeycomb SLO page
 }
 ```
 
 ### UI Additions
 
 **On DeploymentCard (timeline)**:
+
 - Latency indicator (up/down/stable arrow) next to health dot
 - SLO breach warning icon if applicable
 
 **On Deployment Detail - new "Performance" section**:
+
 - Dataset tabs (apollo-gateway / ecommerce-bff)
 - Per-dataset metrics:
   - Latency comparison chart (before/after bars for P50/P95/P99)
@@ -94,6 +98,7 @@ interface SLOStatus {
 - "View traces" button → generates Honeycomb trace link
 
 **On Deployment Detail - new "SLO Status" section**:
+
 - SLO cards showing:
   - SLO name
   - Current vs target (visual gauge)
@@ -102,6 +107,7 @@ interface SLOStatus {
   - Link to Honeycomb
 
 **Dashboard additions**:
+
 - SLO overview widget showing all SLOs at a glance
 - "SLO at risk" alerts
 
@@ -139,7 +145,7 @@ interface HoneycombQuery {
   calculations: Calculation[]
   filters?: Filter[]
   breakdowns?: string[]
-  time_range: number  // seconds
+  time_range: number // seconds
   granularity?: number
 }
 ```
@@ -158,20 +164,18 @@ GET /api/traces                        - Generate trace link
 ```typescript
 function calculateOverallHealth(
   sentry: SentryHealth,
-  honeycomb: PerformanceHealth
-): 'healthy' | 'degraded' | 'critical' {
+  honeycomb: PerformanceHealth,
+): "healthy" | "degraded" | "critical" {
   // Critical if:
   // - Any SLO breached
   // - Error rate up > 50%
   // - P95 latency up > 100%
   // - 3+ new Sentry issues
-
   // Degraded if:
   // - Any SLO at_risk
   // - Error rate up 10-50%
   // - P95 latency up 20-100%
   // - 1-2 new Sentry issues
-
   // Healthy otherwise
 }
 ```
