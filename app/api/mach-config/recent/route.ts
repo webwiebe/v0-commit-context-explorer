@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
   try {
     // Fetch recent commits that modified mach-config/ directory
     const response = await fetch(
-      `${GITHUB_API}/repos/${owner}/${repoName}/commits?path=mach-config&per_page=30`,
+      `${GITHUB_API}/repos/${owner}/${repoName}/commits?path=mach-config&per_page=100`,
       { headers: getHeaders() }
     )
 
@@ -49,7 +49,7 @@ export async function GET(request: NextRequest) {
     const deploymentsMap = new Map<string, RecentDeployment>()
 
     for (const commit of commits) {
-      if (deploymentsMap.size >= 10) break
+      if (deploymentsMap.size >= 20) break
 
       // Fetch the commit details to get files
       const detailResponse = await fetch(
