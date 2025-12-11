@@ -4,24 +4,42 @@ A Next.js application that provides comprehensive context about Git commits, dep
 
 ## Quick Start
 
-\`\`\`bash
+### Local Development
+
+```bash
 pnpm install      # Install dependencies
 pnpm dev          # Start development server (http://localhost:3000)
 pnpm build        # Production build
 pnpm lint         # Run ESLint
-\`\`\`
+```
+
+### Docker Deployment (Recommended)
+
+```bash
+# Copy environment file and configure
+cp .env.example .env
+
+# Edit .env with your API keys
+# ANTHROPIC_API_KEY is required for AI features
+
+# Start the application with Redis caching
+docker-compose up --build
+
+# Access at http://localhost:3000
+```
 
 ## Tech Stack
 
 - **Framework**: Next.js 16 (App Router) with React 19 and TypeScript
 - **Styling**: Tailwind CSS 4.1 with shadcn/ui components (New York style)
 - **Data Fetching**: SWR for client-side caching
-- **AI**: Vercel AI SDK with Claude Sonnet 4
-- **Deployment**: Vercel
+- **AI**: Anthropic SDK with Claude Sonnet 4
+- **Caching**: Redis (persistent) with in-memory fallback
+- **Deployment**: Docker Compose (self-hosted) or Vercel
 
 ## Project Structure
 
-\`\`\`
+```
 app/
 ├── page.tsx                    # Main client component
 ├── layout.tsx                  # Root layout with Analytics
@@ -30,9 +48,10 @@ app/
     ├── commit/[sha]/route.ts   # Single commit context
     ├── changelog/route.ts      # Compare commits, AI summaries
     ├── mach-config/route.ts    # Deployment analysis
+    ├── summarize/route.ts      # Multi-audience release notes
     ├── sentry/
     │   └── release-health/route.ts  # Sentry release health metrics
-    └── easteregg/monkey/route.ts # Monkey engineer image generation
+    └── easteregg/monkey/route.ts # Fun avatar generation (Gravatar)
 
 components/
 ├── commit-input.tsx            # Input form with repo selector
@@ -43,25 +62,42 @@ components/
 ├── sparkline-chart.tsx         # SVG sparkline chart component
 ├── status-badge.tsx            # Deployment status indicators
 ├── ticket-badge.tsx            # Jira ticket references (PX-XXX)
-├── author-hover.tsx            # Easter egg: monkey image on author hover
+├── author-hover.tsx            # Easter egg: avatar on author hover
 └── ui/                         # shadcn/ui primitives
 
 lib/
+├── anthropic.ts                # Anthropic SDK client + helpers
+├── cache.ts                    # Redis/in-memory caching layer
 ├── github.ts                   # GitHub API integration
+├── github-api.ts               # Lightweight GitHub API client
+├── loading-messages.ts         # Snarky loading messages
 ├── sentry.ts                   # Sentry API integration
 ├── types.ts                    # TypeScript interfaces
 └── utils.ts                    # Utility functions (cn)
-\`\`\`
+```
 
 ## Environment Variables
 
-\`\`\`bash
-GITHUB_TOKEN=        # Optional but recommended for higher rate limits
-SENTRY_AUTH_TOKEN=   # Required for Sentry release health integration
-SENTRY_ORG=          # Sentry organization slug (default: frasers-group)
-\`\`\`
+```bash
+# Required for AI features
+ANTHROPIC_API_KEY=sk-ant-...    # Get from console.anthropic.com
 
-The Vercel AI integration uses the Vercel AI Gateway (configured automatically on Vercel) for both text generation (Claude) and image generation (Gemini Flash).
+# Recommended
+GITHUB_TOKEN=ghp_...            # Higher rate limits (60/hr without)
+REDIS_URL=redis://localhost:6379 # Persistent caching (auto-set in Docker)
+
+# Optional: Sentry
+SENTRY_AUTH_TOKEN=              # Error monitoring
+SENTRY_ORG=frasers-group
+SENTRY_PROJECT=
+
+# Optional: Jira
+JIRA_BASE_URL=sportsdirect.atlassian.net
+JIRA_API_TOKEN=
+JIRA_EMAIL=
+```
+
+See `.env.example` for full configuration options.
 
 ## API Routes
 
@@ -83,6 +119,12 @@ Analyzes deployment commits to `mach-config/` directory, parses version changes,
 
 **Query params**: `sha`, `repo`
 
+### POST `/api/summarize`
+
+Generates multi-audience release notes (business, developer, DevOps).
+
+**Body**: `{ sha, baseRef?, repo, componentPath?, environment? }`
+
 ### GET `/api/sentry/release-health`
 
 Fetches Sentry release health metrics including crash-free rates, sessions, and 24h time series.
@@ -91,9 +133,23 @@ Fetches Sentry release health metrics including crash-free rates, sessions, and 
 
 ### GET `/api/easteregg/monkey`
 
-Generates AI-powered humorous monkey engineer images using Google Gemini Flash via Vercel AI Gateway.
+Returns a fun Gravatar-based avatar for usernames.
 
 **Query params**: `username`
+
+## Caching Strategy
+
+AI responses and GitHub API calls are cached to reduce costs and improve performance:
+
+| Data Type | Cache Key Pattern | TTL |
+|-----------|-------------------|-----|
+| AI Summary | `ai:summary:{sha}:{baseRef}` | 1 hour |
+| AI Changelog | `ai:changelog:{repo}:{from}:{to}` | 1 hour |
+| AI Mach-config | `ai:machconfig:{repo}:{sha}:{component}` | 1 hour |
+| GitHub Commit | `commit:{repo}:{sha}` | 10 min |
+| GitHub Compare | `compare:{repo}:{base}...{head}` | 30 min |
+
+When `REDIS_URL` is set, caching is persistent across container restarts. Otherwise, falls back to in-memory cache.
 
 ## GitHub Integration
 
@@ -122,7 +178,7 @@ The Release Health dashboard displays:
 
 ## Key Types
 
-\`\`\`typescript
+```typescript
 interface CommitContext {
   commit: { sha, message, author, date, ticketRefs[] }
   pr: { number, title, mergedBy, url } | null
@@ -145,7 +201,7 @@ interface ReleaseHealthMetrics {
   totalSessions, totalUsers, crashedSessions, unhandledErrors
   timeSeries: { intervals[], crashFreeSessions[], sessions[] }
 }
-\`\`\`
+```
 
 ## Development Notes
 
@@ -154,6 +210,7 @@ interface ReleaseHealthMetrics {
 - Repository list persisted in localStorage
 - Ticket pattern: `PX-XXX` (extracted from commit messages and PR titles)
 - Theme: Forced dark mode with cyberpunk color scheme (OKLCH)
+- Snarky loading messages rotate while waiting for AI responses
 
 ## Roadmap
 
@@ -180,3 +237,4 @@ Honeycomb integration - link deployments to observability metrics
 - API routes return structured JSON with error messages
 - AI prompts request structured output (bullet points, risk levels)
 - TypeScript strict mode enabled
+- Cache expensive operations (AI, GitHub API) with appropriate TTLs

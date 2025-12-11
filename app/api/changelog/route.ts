@@ -1,7 +1,8 @@
 import { type NextRequest, NextResponse } from "next/server"
 import * as Sentry from "@sentry/nextjs"
 import { compareCommits } from "@/lib/github"
-import { generateText } from "ai"
+import { generateText } from "@/lib/anthropic"
+import { getCached, setCache, CACHE_TTL } from "@/lib/cache"
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams
@@ -25,26 +26,32 @@ export async function GET(request: NextRequest) {
     let summary: string | undefined
 
     if (changelog.files.length > 0) {
-      // Build context from files - limit patch size to avoid token limits
-      const filesContext = changelog.files
-        .slice(0, 30) // Limit to 30 files
-        .map((file) => {
-          const patchPreview = file.patch ? file.patch.slice(0, 1500) : "No diff available"
-          return `File: ${file.filename} (${file.status})
+      // Check cache first for AI summary
+      const cacheKey = `ai:changelog:${repo}:${from}:${to}`
+      const cachedSummary = await getCached<string>(cacheKey)
+
+      if (cachedSummary) {
+        summary = cachedSummary
+      } else {
+        // Build context from files - limit patch size to avoid token limits
+        const filesContext = changelog.files
+          .slice(0, 30) // Limit to 30 files
+          .map((file) => {
+            const patchPreview = file.patch ? file.patch.slice(0, 1500) : "No diff available"
+            return `File: ${file.filename} (${file.status})
 +${file.additions} -${file.deletions}
 ${patchPreview}${file.patch && file.patch.length > 1500 ? "\n... (truncated)" : ""}`
-        })
-        .join("\n\n---\n\n")
+          })
+          .join("\n\n---\n\n")
 
-      const commitsContext = changelog.commits
-        .slice(0, 20)
-        .map((c) => `- ${c.message} (${c.author})`)
-        .join("\n")
+        const commitsContext = changelog.commits
+          .slice(0, 20)
+          .map((c) => `- ${c.message} (${c.author})`)
+          .join("\n")
 
-      try {
-        const { text } = await generateText({
-          model: "anthropic/claude-sonnet-4.5",
-          prompt: `You are a senior software engineer reviewing code changes. Analyze the following git diff and commit messages, then provide a concise summary.
+        try {
+          summary = await generateText({
+            prompt: `You are a senior software engineer reviewing code changes. Analyze the following git diff and commit messages, then provide a concise summary.
 
 COMMITS:
 ${commitsContext}
@@ -58,12 +65,14 @@ Provide a structured summary with:
 3. **Impact**: Brief note on what areas of the codebase are affected
 
 Keep it concise and technical. Focus on what matters to developers reviewing this changelog.`,
-        })
+          })
 
-        summary = text
-      } catch (aiError) {
-        console.error("AI summary generation failed:", aiError)
-        // Continue without summary if AI fails
+          // Cache the AI summary
+          await setCache(cacheKey, summary, CACHE_TTL.AI_CHANGELOG)
+        } catch (aiError) {
+          console.error("AI summary generation failed:", aiError)
+          // Continue without summary if AI fails
+        }
       }
     }
 
