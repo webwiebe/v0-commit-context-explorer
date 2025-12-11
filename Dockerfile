@@ -2,7 +2,7 @@
 
 # Base stage with Node.js and pnpm
 FROM node:22-alpine AS base
-RUN corepack enable && corepack prepare pnpm@latest --activate
+RUN corepack enable && corepack prepare pnpm@8.15.9 --activate
 WORKDIR /app
 
 # Dependencies stage
