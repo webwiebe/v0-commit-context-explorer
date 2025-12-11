@@ -39,6 +39,18 @@ export async function GET(request: NextRequest) {
     )
 
     if (!response.ok) {
+      if (response.status === 404) {
+        return NextResponse.json(
+          { error: `Repository not found or no access: ${repo}. Check GITHUB_TOKEN has access to this repo.` },
+          { status: 404 }
+        )
+      }
+      if (response.status === 401 || response.status === 403) {
+        return NextResponse.json(
+          { error: `GitHub authentication failed. Check GITHUB_TOKEN is valid and has repo access.` },
+          { status: response.status }
+        )
+      }
       const error = await response.json().catch(() => ({}))
       throw new Error(error.message || `Failed to fetch commits: ${response.status}`)
     }
