@@ -1,7 +1,8 @@
 import { type NextRequest, NextResponse } from "next/server"
 import * as Sentry from "@sentry/nextjs"
 import { getCommitDiff, parseMachConfigVersionChanges, compareCommitsScoped } from "@/lib/github"
-import { generateText } from "ai"
+import { generateText } from "@/lib/anthropic"
+import { getCached, setCache, CACHE_TTL } from "@/lib/cache"
 import type { ComponentVersionChange, MachConfigDeployment } from "@/lib/types"
 
 export async function GET(request: NextRequest) {
@@ -64,10 +65,11 @@ export async function GET(request: NextRequest) {
             change.componentPath,
           )
 
-          // Generate AI summary for this component
-          let summary: string | undefined
+          // Check cache for AI summary
+          const cacheKey = `ai:machconfig:${repo}:${sha}:${change.componentName}`
+          let summary = await getCached<string>(cacheKey)
 
-          if (changelog.files.length > 0) {
+          if (!summary && changelog.files.length > 0) {
             const filesContext = changelog.files
               .slice(0, 20)
               .map((file) => {
@@ -84,8 +86,7 @@ ${patchPreview}${file.patch && file.patch.length > 1000 ? "\n... (truncated)" : 
               .join("\n")
 
             try {
-              const result = await generateText({
-                model: "anthropic/claude-sonnet-4.5",
+              summary = await generateText({
                 prompt: `You are a senior software engineer reviewing code changes for the "${change.componentName}" component being deployed to ${change.environment}.
 
 COMMITS:
@@ -103,7 +104,8 @@ Provide a concise deployment summary with:
 Keep it brief and actionable for the deployment team.`,
               })
 
-              summary = result.text
+              // Cache the AI summary
+              await setCache(cacheKey, summary, CACHE_TTL.AI_MACHCONFIG)
             } catch (aiError) {
               const errorMessage = aiError instanceof Error ? aiError.message : String(aiError)
               console.error(`[v0] AI summary generation failed for component: ${change.componentName}`, errorMessage)
@@ -113,7 +115,7 @@ Keep it brief and actionable for the deployment team.`,
 
           return {
             ...change,
-            changelog: { ...changelog, summary },
+            changelog: { ...changelog, summary: summary ?? undefined },
           }
         } catch (err) {
           console.error("Failed to fetch changelog for component:", change.componentName, err)

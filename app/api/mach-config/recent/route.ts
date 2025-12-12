@@ -39,8 +39,45 @@ export async function GET(request: NextRequest) {
     )
 
     if (!response.ok) {
-      const error = await response.json().catch(() => ({}))
-      throw new Error(error.message || `Failed to fetch commits: ${response.status}`)
+      const hasToken = !!process.env.GITHUB_TOKEN
+      const errorBody = await response.json().catch(() => ({}))
+
+      if (response.status === 404) {
+        const tokenInfo = hasToken
+          ? "GITHUB_TOKEN is set but may not have access to this repository"
+          : "GITHUB_TOKEN is not set - private repositories require authentication"
+        return NextResponse.json(
+          {
+            error: `Repository not found or no access: ${repo}. ${tokenInfo}`,
+            details: { hasToken, status: 404, githubMessage: errorBody.message },
+          },
+          { status: 404 }
+        )
+      }
+      if (response.status === 401) {
+        return NextResponse.json(
+          {
+            error: "GitHub authentication failed. The GITHUB_TOKEN may be invalid or expired.",
+            details: { hasToken, status: 401, githubMessage: errorBody.message },
+          },
+          { status: 401 }
+        )
+      }
+      if (response.status === 403) {
+        const rateLimit = response.headers.get("x-ratelimit-remaining")
+        const isRateLimited = rateLimit === "0"
+        const errorMsg = isRateLimited
+          ? "GitHub API rate limit exceeded. Set GITHUB_TOKEN for higher limits."
+          : "GitHub access forbidden. Check GITHUB_TOKEN has 'repo' scope."
+        return NextResponse.json(
+          {
+            error: errorMsg,
+            details: { hasToken, status: 403, rateLimit, githubMessage: errorBody.message },
+          },
+          { status: 403 }
+        )
+      }
+      throw new Error(errorBody.message || `Failed to fetch commits: ${response.status}`)
     }
 
     const commits = await response.json()

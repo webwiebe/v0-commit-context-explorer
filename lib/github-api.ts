@@ -75,7 +75,7 @@ export interface PathCommit {
 
 export async function fetchCommit(owner: string, repo: string, sha: string): Promise<CommitDetails> {
   const cacheKey = `commit:${owner}/${repo}:${sha}`
-  const cached = getCached<CommitDetails>(cacheKey)
+  const cached = await getCached<CommitDetails>(cacheKey)
   if (cached) return cached
 
   const response = await fetch(`${GITHUB_API}/repos/${owner}/${repo}/commits/${sha}`, {
@@ -110,7 +110,7 @@ export async function fetchCommit(owner: string, repo: string, sha: string): Pro
     parents: data.parents || [],
   }
 
-  setCache(cacheKey, commit, CACHE_TTL.COMMIT)
+  await setCache(cacheKey, commit, CACHE_TTL.COMMIT)
   return commit
 }
 
@@ -145,7 +145,7 @@ export async function fetchCommitRange(
   filterPath?: string,
 ): Promise<CommitCompareResult> {
   const cacheKey = `compare:${owner}/${repo}:${base}...${head}${filterPath ? `:${filterPath}` : ""}`
-  const cached = getCached<CommitCompareResult>(cacheKey)
+  const cached = await getCached<CommitCompareResult>(cacheKey)
   if (cached) return cached
 
   const response = await fetch(`${GITHUB_API}/repos/${owner}/${repo}/compare/${base}...${head}`, {
@@ -219,7 +219,7 @@ export async function fetchCommitRange(
     tickets,
   }
 
-  setCache(cacheKey, result, CACHE_TTL.DIFF)
+  await setCache(cacheKey, result, CACHE_TTL.DIFF)
   return result
 }
 
@@ -230,7 +230,7 @@ export async function fetchCommitsByPath(
   since: string,
 ): Promise<PathCommit[]> {
   const cacheKey = `commits-by-path:${owner}/${repo}:${path}:${since}`
-  const cached = getCached<PathCommit[]>(cacheKey)
+  const cached = await getCached<PathCommit[]>(cacheKey)
   if (cached) return cached
 
   // Fetch commits that touched the specified path since the given date
@@ -262,6 +262,6 @@ export async function fetchCommitsByPath(
     filesChanged: [], // Will be populated if we fetch individual commit details
   }))
 
-  setCache(cacheKey, commits, CACHE_TTL.COMMIT)
+  await setCache(cacheKey, commits, CACHE_TTL.COMMIT)
   return commits
 }

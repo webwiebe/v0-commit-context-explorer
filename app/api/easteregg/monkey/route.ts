@@ -1,17 +1,14 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { generateText } from "ai"
-import { openai } from "@ai-sdk/openai"
+import { createHash } from "crypto"
 
-const MONKEY_SCENARIOS = [
-  "a cartoon monkey engineer holding a wrench upside down with a confused expression, trying to fix a computer",
-  "a cartoon monkey developer staring confused at code on a computer screen, scratching its head",
-  "a cartoon monkey engineer wearing a hard hat backwards while typing on a keyboard",
-  "a cartoon monkey completely tangled in ethernet cables and looking panicked",
-  "a cartoon monkey using a keyboard as a hammer to hit a computer monitor",
-  "a cartoon monkey trying to plug a banana into a USB port",
-  "a cartoon monkey reading a programming book upside down with a serious expression",
-  "a cartoon monkey wearing safety goggles on top of its head while soldering incorrectly",
-]
+// Gravatar avatar styles that produce fun/quirky images
+const GRAVATAR_STYLES = [
+  "monsterid", // Monster-like creatures
+  "wavatar", // Faces with different features
+  "retro", // 8-bit arcade-style faces
+  "robohash", // Robot faces
+  "identicon", // Geometric patterns
+] as const
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams
@@ -21,35 +18,25 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Missing required parameter: username" }, { status: 400 })
   }
 
-  // Use username as seed for consistent scenario per user
-  const scenarioIndex = Math.abs(hashString(username)) % MONKEY_SCENARIOS.length
-  const scenario = MONKEY_SCENARIOS[scenarioIndex]
+  // Create a hash from the username for consistent results
+  const hash = createHash("md5").update(username.toLowerCase().trim()).digest("hex")
 
-  try {
-    const result = await generateText({
-      model: "openai/gpt-5.1-instant",
-      prompt: `${scenario}. Digital art style, humorous, cute, vibrant colors, simple background. The scene should be funny and lighthearted.`,
-      tools: {
-        image_generation: openai.tools.imageGeneration({
-          outputFormat: "webp",
-          quality: "low",
-        }),
-      },
-    })
+  // Use username hash to select a consistent style per user
+  const styleIndex = Math.abs(hashString(username)) % GRAVATAR_STYLES.length
+  const style = GRAVATAR_STYLES[styleIndex]
 
-    return NextResponse.json({
-      image: result.staticToolResults.find((result) => result.toolName === "image_generation")?.output.result,
-      mimeType: "image/webp",
-      scenario: scenario,
-    })
-  } catch (error) {
-    console.error("Monkey image generation failed:", error)
-    const message = error instanceof Error ? error.message : "Failed to generate monkey image"
-    return NextResponse.json({ error: message }, { status: 500 })
-  }
+  // Build Gravatar URL with the style
+  // Using a fake email hash ensures we always get the default (fun) image
+  const gravatarUrl = `https://www.gravatar.com/avatar/${hash}?d=${style}&s=256&f=y`
+
+  return NextResponse.json({
+    imageUrl: gravatarUrl,
+    style: style,
+    username: username,
+  })
 }
 
-// Simple string hash function for consistent results per username
+// Simple string hash function for consistent style selection per username
 function hashString(str: string): number {
   let hash = 0
   for (let i = 0; i < str.length; i++) {

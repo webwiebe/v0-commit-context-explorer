@@ -20,7 +20,7 @@ interface SparklineChartProps {
 
 export function SparklineChart({
   data,
-  labels,
+  labels: _labels,
   height = 60,
   width = 200,
   color = "oklch(0.85 0.18 190)",

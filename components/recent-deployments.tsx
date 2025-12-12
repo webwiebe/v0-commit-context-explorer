@@ -49,11 +49,15 @@ export function RecentDeployments({ repo }: RecentDeploymentsProps) {
   }
 
   if (error) {
+    const errorMessage = error instanceof Error ? error.message : "Failed to load recent deployments"
     return (
       <div className="mt-4 p-4 rounded-lg border border-error/30 bg-error/10">
-        <div className="flex items-center gap-2 text-sm text-error">
-          <AlertCircle className="h-4 w-4" />
-          <span>Failed to load recent deployments</span>
+        <div className="flex items-start gap-2 text-sm text-error">
+          <AlertCircle className="h-4 w-4 flex-shrink-0 mt-0.5" />
+          <div className="space-y-1">
+            <span className="font-medium">Failed to load deployments</span>
+            <p className="text-xs text-error/80">{errorMessage}</p>
+          </div>
         </div>
       </div>
     )

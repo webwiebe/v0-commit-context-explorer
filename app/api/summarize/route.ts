@@ -1,6 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { generateText, type GenerateTextResult, type ToolSet } from "ai"
-//import { z } from "zod"
+import { generateText } from "@/lib/anthropic"
 import { fetchCommit, fetchCommitRange, extractJiraTickets, type CommitCompareResult } from "@/lib/github-api"
 import { getCached, setCache, CACHE_TTL } from "@/lib/cache"
 import { fetchJiraTickets, formatTicketsForAI, shouldAttemptJiraConnection, getJiraStatus } from "@/lib/jira"
@@ -11,37 +10,7 @@ interface ReleaseSummaries {
   devops: string
 }
 
-/* const summarySchema = z.object({
-  overview: z.string().describe("2-3 sentence plain-English explanation of what these commits do overall"),
-  riskLevel: z.enum(["low", "medium", "high"]).describe("Overall risk level of the changes themselves"),
-  riskReason: z
-    .string()
-    .describe("Brief explanation of why this risk level was assigned based on the nature of the changes"),
-  endUsersImpact: z
-    .string()
-    .describe(
-      "How end users are impacted. MUST reference specific features, UI elements, or behaviors. If no impact, say 'No direct impact from these changes.'",
-    ),
-  operationsTeamImpact: z
-    .string()
-    .describe(
-      "How the operations team is impacted. MUST reference specific monitoring, deployment, or infrastructure concerns. If no impact, say 'No direct impact from these changes.'",
-    ),
-  businessImpact: z
-    .string()
-    .describe(
-      "How the business is impacted. MUST reference specific revenue, customer experience, or business process changes. If no impact, say 'No direct impact from these changes.'",
-    ),
-  thingsToWatch: z
-    .array(z.string())
-    .describe(
-      "MUST name specific features, buttons, pages, or user flows from the code. Each item must reference something a tester could actually find and click on. Never generic.",
-    ),
-}) */
-
-//type Summary = z.infer<typeof summarySchema>
-
-async function generateDevOpsSummary(compareData: CommitCompareResult): Promise</*Summary*/GenerateTextResult<ToolSet, never>> {
+async function generateDevOpsSummary(compareData: CommitCompareResult): Promise<string> {
   const commitMessages = compareData.commits.map((c) => c.message.split("\n")[0]).join("\n- ")
 
   const filesChanged = compareData.files?.map((f) => ({
@@ -112,7 +81,7 @@ Before writing ANY impact, ask yourself: "Can I point to a specific line of code
 If there is genuinely no impact for a category, write "No direct impact from these changes." - but think carefully first.
 
 BANNED PHRASES (if you use these, your output is wrong):
-- "may experience changes"  
+- "may experience changes"
 - "should be aware"
 - "requires monitoring" (unless you specify WHAT to monitor)
 - "may notice updates"
@@ -139,7 +108,7 @@ Each item MUST be a testable instruction that references something specific from
 BANNED PHRASES:
 - "Test site functionality"
 - "Monitor for errors"
-- "Verify the deployment"  
+- "Verify the deployment"
 - "Check availability"
 - "Test affected pages" (which pages?)
 - Any mention of "production" or "infrastructure" generically
@@ -159,22 +128,10 @@ Examples of BAD items (these would be rejected):
 
 REMEMBER: A non-technical person should be able to read each item and know EXACTLY what to do. Write for humans, not developers.`
 
-  /* const { object } = await generateObject({
-    model: "anthropic/claude-sonnet-4-20250514",
-    schema: summarySchema,
+  return generateText({
     prompt,
-    temperature: 0, // Set temperature to 0 for deterministic, consistent outputs
-  }) */
-
-  //return object
-
-  const result = await generateText({
-    model: "anthropic/claude-sonnet-4-20250514",
-    prompt,
-    temperature: 0, // Set temperature to 0 for deterministic, consistent outputs
+    temperature: 0,
   })
-
-  return result
 }
 
 export async function POST(request: NextRequest) {
@@ -196,7 +153,7 @@ export async function POST(request: NextRequest) {
   const [owner, repo] = parts
 
   const cacheKey = `summary:${owner}/${repo}:${sha}:${baseRef || "single"}:${componentPath || "all"}`
-  const cached = getCached<{ summaries: ReleaseSummaries; commit: any; ticketDetails: any[]; jiraStatus: any }>(
+  const cached = await getCached<{ summaries: ReleaseSummaries; commit: unknown; ticketDetails: unknown[]; jiraStatus: unknown }>(
     cacheKey,
   )
   if (cached) {
@@ -205,7 +162,7 @@ export async function POST(request: NextRequest) {
 
   try {
     let contextForAI: string
-    let commitData: any
+    let commitData: CommitCompareResult | (Awaited<ReturnType<typeof fetchCommit>> & { tickets: string[]; stats: { additions: number; deletions: number; total: number } })
     const pathContext = componentPath ? `\nFiltered to path: ${componentPath}` : ""
     const releaseDate = new Date().toLocaleString("en-GB", {
       weekday: "long",
@@ -285,61 +242,62 @@ ${filteredFiles.length > 30 ? `\n... and ${filteredFiles.length - 30} more files
 `
     }
 
-    let ticketDetails: any[] = []
+    let ticketDetails: unknown[] = []
     let jiraContext = ""
     const jiraStatus = getJiraStatus()
 
-    if (commitData.tickets && commitData.tickets.length > 0) {
+    const tickets = "tickets" in commitData ? commitData.tickets : []
+    if (tickets && tickets.length > 0) {
       if (shouldAttemptJiraConnection()) {
-        ticketDetails = await fetchJiraTickets(commitData.tickets)
+        ticketDetails = await fetchJiraTickets(tickets)
       } else {
         // Create placeholder ticket details with just the key and URL
-        ticketDetails = commitData.tickets.map((ticket: string) => ({
+        ticketDetails = tickets.map((ticket: string) => ({
           key: ticket,
           url: `https://${process.env.JIRA_BASE_URL || "sportsdirect.atlassian.net"}/browse/${ticket}`,
           error: jiraStatus.connectionFailed ? "JIRA unavailable" : "Not configured",
         }))
       }
-      jiraContext = formatTicketsForAI(ticketDetails)
+      jiraContext = formatTicketsForAI(ticketDetails as Parameters<typeof formatTicketsForAI>[0])
       contextForAI += jiraContext
     }
 
     let developerCommitContext = ""
-    if (baseRef && commitData.commits) {
+    if (baseRef && "commits" in commitData && commitData.commits) {
       developerCommitContext = `
 DETAILED COMMIT BREAKDOWN:
 ${commitData.commits
-  .map((c: any) => {
+  .map((c) => {
     const commitFiles = commitData.files
-      .filter((f: any) => f.sha === c.sha || !f.sha) // files may not have sha, include all as fallback
+      .filter((f) => "sha" in f ? f.sha === c.sha : true)
       .slice(0, 10)
     return `
 ### Commit: ${c.sha.substring(0, 7)}
 Author: ${c.author}
 Message: ${c.message}
 Files in this commit:
-${commitFiles.map((f: any) => `  - ${f.filename} (+${f.additions}/-${f.deletions})`).join("\n") || "  (file details not available per-commit)"}
+${commitFiles.map((f) => `  - ${f.filename} (+${f.additions}/-${f.deletions})`).join("\n") || "  (file details not available per-commit)"}
 `
   })
   .join("\n")}
 
 ALL FILES CHANGED:
-${commitData.files.map((f: any) => `- ${f.status}: ${f.filename} (+${f.additions}/-${f.deletions})`).join("\n")}
+${commitData.files.map((f) => `- ${f.status}: ${f.filename} (+${f.additions}/-${f.deletions})`).join("\n")}
 `
     } else {
+      const singleCommitData = commitData as Awaited<ReturnType<typeof fetchCommit>> & { tickets: string[]; stats: { additions: number; deletions: number; total: number } }
       developerCommitContext = `
-COMMIT: ${commitData.sha?.substring(0, 7) || sha.substring(0, 7)}
-Author: ${commitData.author?.name || "Unknown"}
-Message: ${commitData.message || "No message"}
+COMMIT: ${singleCommitData.sha?.substring(0, 7) || sha.substring(0, 7)}
+Author: ${singleCommitData.author?.name || "Unknown"}
+Message: ${singleCommitData.message || "No message"}
 
 FILES CHANGED:
-${commitData.files?.map((f: any) => `- ${f.status}: ${f.filename} (+${f.additions}/-${f.deletions})`).join("\n") || "No files"}
+${singleCommitData.files?.map((f) => `- ${f.status}: ${f.filename} (+${f.additions}/-${f.deletions})`).join("\n") || "No files"}
 `
     }
 
     const [businessResult, developerResult, devopsResult] = await Promise.all([
       generateText({
-        model: "anthropic/claude-sonnet-4.5",
         system: `You are a product communications specialist writing release notes for Product Owners and business stakeholders.
 
 Your output MUST follow this exact structure:
@@ -371,11 +329,9 @@ Rules:
 - If a ticket doesn't have JIRA details, still reference it by number
 - End with a brief "What's Next" or "Coming Soon" section if appropriate`,
         prompt: `Generate business-focused release notes for Product Owners:\n${contextForAI}`,
-        // maxTokens: 1200,
       }),
 
       generateText({
-        model: "anthropic/claude-sonnet-4.5",
         system: `You are a senior developer writing technical release notes for the engineering team.
 
 Your output MUST follow this exact structure:
@@ -404,15 +360,14 @@ Rules:
 - Group related commits under a feature heading if they clearly belong together
 - Highlight any breaking changes, API modifications, or dependency updates`,
         prompt: `Generate developer-focused technical release notes with per-commit breakdown:\n${contextForAI}\n${developerCommitContext}`,
-        // maxTokens: 1500,
       }),
-      generateDevOpsSummary(commitData),
+      generateDevOpsSummary(commitData as CommitCompareResult),
     ])
 
     const summaries: ReleaseSummaries = {
-      business: businessResult.text,
-      developer: developerResult.text,
-      devops: devopsResult.text,
+      business: businessResult,
+      developer: developerResult,
+      devops: devopsResult,
     }
 
     const result = {
@@ -422,7 +377,7 @@ Rules:
       jiraStatus,
       cached: false,
     }
-    setCache(cacheKey, { summaries, commit: commitData, ticketDetails, jiraStatus }, CACHE_TTL.SUMMARY)
+    await setCache(cacheKey, { summaries, commit: commitData, ticketDetails, jiraStatus }, CACHE_TTL.SUMMARY)
 
     return NextResponse.json(result)
   } catch (error) {

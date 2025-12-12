@@ -126,7 +126,7 @@ export async function fetchJiraTicket(ticketKey: string): Promise<JiraTicket> {
   }
 
   const cacheKey = `jira:${ticketKey}`
-  const cached = getCached<JiraTicket>(cacheKey)
+  const cached = await getCached<JiraTicket>(cacheKey)
   if (cached) return cached
 
   try {
@@ -229,7 +229,7 @@ export async function fetchJiraTicket(ticketKey: string): Promise<JiraTicket> {
     let data
     try {
       data = JSON.parse(responseText)
-    } catch (parseError) {
+    } catch (_parseError) {
       jiraConnectionFailed = true
       jiraFailureReason = "Invalid JSON response from JIRA"
       return {
@@ -260,7 +260,7 @@ export async function fetchJiraTicket(ticketKey: string): Promise<JiraTicket> {
       url: `${baseUrl}/browse/${data.key}`,
     }
 
-    setCache(cacheKey, ticket, CACHE_TTL.COMMIT)
+    await setCache(cacheKey, ticket, CACHE_TTL.COMMIT)
     return ticket
   } catch (error) {
     jiraConnectionFailed = true

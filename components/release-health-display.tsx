@@ -14,7 +14,7 @@ import {
   Shield,
   BarChart3,
 } from "lucide-react"
-import { formatDistanceToNow, format } from "date-fns"
+import { format } from "date-fns"
 import { cn } from "@/lib/utils"
 
 interface ReleaseHealthDisplayProps {

@@ -78,7 +78,7 @@ export async function fetchReleaseHealth(
   let totalUsers = 0
 
   const crashedTimeSeries: number[] = []
-  const sessionsTimeSeries: number[] = []
+  const _sessionsTimeSeries: number[] = [] // Reserved for future use
 
   for (const group of sessionData.groups) {
     const status = group.by["session.status"]
