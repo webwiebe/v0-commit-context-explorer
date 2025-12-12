@@ -33,6 +33,24 @@ export async function getCommit(owner: string, repo: string, sha: string): Promi
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({}))
+    const hasToken = !!process.env.GITHUB_TOKEN
+
+    if (response.status === 404) {
+      const tokenInfo = hasToken
+        ? "Token is set but may not have access"
+        : "No token set - private repos require authentication"
+      throw new Error(`Repository or commit not found: ${owner}/${repo}@${sha}. ${tokenInfo}`)
+    }
+    if (response.status === 401) {
+      throw new Error("GitHub authentication failed. Check GITHUB_TOKEN is valid.")
+    }
+    if (response.status === 403) {
+      const rateLimit = response.headers.get("x-ratelimit-remaining")
+      if (rateLimit === "0") {
+        throw new Error("GitHub API rate limit exceeded. Set GITHUB_TOKEN for higher limits.")
+      }
+      throw new Error("GitHub access forbidden. Check GITHUB_TOKEN has 'repo' scope.")
+    }
     throw new Error(error.message || `Failed to fetch commit: ${response.status}`)
   }
 
@@ -145,6 +163,24 @@ export async function compareCommits(
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({}))
+    const hasToken = !!process.env.GITHUB_TOKEN
+
+    if (response.status === 404) {
+      const tokenInfo = hasToken
+        ? "Token is set but may not have access"
+        : "No token set - private repos require authentication"
+      throw new Error(`Repository or commits not found: ${owner}/${repo}. ${tokenInfo}`)
+    }
+    if (response.status === 401) {
+      throw new Error("GitHub authentication failed. Check GITHUB_TOKEN is valid.")
+    }
+    if (response.status === 403) {
+      const rateLimit = response.headers.get("x-ratelimit-remaining")
+      if (rateLimit === "0") {
+        throw new Error("GitHub API rate limit exceeded. Set GITHUB_TOKEN for higher limits.")
+      }
+      throw new Error("GitHub access forbidden. Check GITHUB_TOKEN has 'repo' scope.")
+    }
     throw new Error(error.message || `Failed to compare commits: ${response.status}`)
   }
 
@@ -197,6 +233,24 @@ export async function getCommitDiff(
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({}))
+    const hasToken = !!process.env.GITHUB_TOKEN
+
+    if (response.status === 404) {
+      const tokenInfo = hasToken
+        ? "Token is set but may not have access"
+        : "No token set - private repos require authentication"
+      throw new Error(`Repository or commit not found: ${owner}/${repo}@${sha}. ${tokenInfo}`)
+    }
+    if (response.status === 401) {
+      throw new Error("GitHub authentication failed. Check GITHUB_TOKEN is valid.")
+    }
+    if (response.status === 403) {
+      const rateLimit = response.headers.get("x-ratelimit-remaining")
+      if (rateLimit === "0") {
+        throw new Error("GitHub API rate limit exceeded. Set GITHUB_TOKEN for higher limits.")
+      }
+      throw new Error("GitHub access forbidden. Check GITHUB_TOKEN has 'repo' scope.")
+    }
     throw new Error(error.message || `Failed to fetch commit: ${response.status}`)
   }
 
@@ -227,6 +281,24 @@ export async function compareCommitsScoped(
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({}))
+    const hasToken = !!process.env.GITHUB_TOKEN
+
+    if (response.status === 404) {
+      const tokenInfo = hasToken
+        ? "Token is set but may not have access"
+        : "No token set - private repos require authentication"
+      throw new Error(`Repository or commits not found: ${owner}/${repo}. ${tokenInfo}`)
+    }
+    if (response.status === 401) {
+      throw new Error("GitHub authentication failed. Check GITHUB_TOKEN is valid.")
+    }
+    if (response.status === 403) {
+      const rateLimit = response.headers.get("x-ratelimit-remaining")
+      if (rateLimit === "0") {
+        throw new Error("GitHub API rate limit exceeded. Set GITHUB_TOKEN for higher limits.")
+      }
+      throw new Error("GitHub access forbidden. Check GITHUB_TOKEN has 'repo' scope.")
+    }
     throw new Error(error.message || `Failed to compare commits: ${response.status}`)
   }
 

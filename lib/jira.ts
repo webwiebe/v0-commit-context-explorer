@@ -229,7 +229,7 @@ export async function fetchJiraTicket(ticketKey: string): Promise<JiraTicket> {
     let data
     try {
       data = JSON.parse(responseText)
-    } catch (parseError) {
+    } catch (_parseError) {
       jiraConnectionFailed = true
       jiraFailureReason = "Invalid JSON response from JIRA"
       return {
